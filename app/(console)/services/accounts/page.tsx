@@ -91,7 +91,7 @@ export default async function AccountsOverview() {
           <CardContent className="px-0">
             <div className="divide-y">
               {o.recentUsers.map((u) => (
-                <Link key={u.id} href={`/services/accounts/users/${u.id}`} className="hover:bg-muted/50 flex items-center gap-3 px-6 py-2.5 transition-colors">
+                <Link key={u.id} href={`/users/${u.id}`} className="hover:bg-muted/50 flex items-center gap-3 px-6 py-2.5 transition-colors">
                   <Avatar className="size-8">
                     <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">{(u.name ?? u.email).slice(0, 2).toUpperCase()}</AvatarFallback>
                   </Avatar>

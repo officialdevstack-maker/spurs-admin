@@ -81,9 +81,11 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
   const dataErrors = [
     ...(platformResult.status === "rejected" ? ["Platform"] : []),
     ...(accountResult.status === "rejected" ? ["Accounts"] : []),
+    ...(rolesResult.status === "rejected" ? ["Accounts roles"] : []),
     ...(notesResult.status === "rejected" ? ["staff notes"] : []),
     ...u.serviceErrors,
   ];
+  const platformUnavailable = platformResult.status === "rejected";
 
   const initials = (name ?? email ?? "U").slice(0, 2).toUpperCase();
 
@@ -192,9 +194,9 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
       )}
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <ActivityCard icon={GraduationCap} title="Earn activity" rows={u.earnActivity} unavailable={u.serviceErrors.includes("Earn")} />
-        <ActivityCard icon={Gift} title="Gift card trades" rows={u.giftcardActivity} unavailable={u.serviceErrors.includes("Gift Cards")} />
-        <ActivityCard icon={Gamepad2} title="Arena activity" rows={u.arenaActivity} unavailable={u.serviceErrors.includes("Arena")} />
+        <ActivityCard icon={GraduationCap} title="Earn activity" rows={u.earnActivity} unavailable={platformUnavailable || u.serviceErrors.includes("Earn")} />
+        <ActivityCard icon={Gift} title="Gift card trades" rows={u.giftcardActivity} unavailable={platformUnavailable || u.serviceErrors.includes("Gift Cards")} />
+        <ActivityCard icon={Gamepad2} title="Arena activity" rows={u.arenaActivity} unavailable={platformUnavailable || u.serviceErrors.includes("Arena")} />
       </div>
 
       {/* Two-column body */}

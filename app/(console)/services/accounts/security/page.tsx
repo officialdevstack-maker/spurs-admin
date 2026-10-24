@@ -52,7 +52,7 @@ export default async function SecurityPage({ searchParams }: { searchParams: Pro
                       </div>
                       <div className="text-muted-foreground flex flex-wrap items-center gap-x-2 truncate text-xs">
                         {e.user ? (
-                          <Link href={`/services/accounts/users/${e.user.id}`} className="hover:underline">{e.user.name}</Link>
+                          <Link href={`/users/${e.user.id}`} className="hover:underline">{e.user.name}</Link>
                         ) : "Unknown"}
                         <span className="inline-flex items-center gap-1"><MapPin className="size-3" /> {e.location}</span>
                         {e.device ? <span>· {e.device}</span> : null}{e.ip ? <span>· {e.ip}</span> : null}

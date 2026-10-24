@@ -72,7 +72,7 @@ export default async function FraudPage({ searchParams }: { searchParams: Promis
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-medium">
                           {a.user
-                            ? <Link href={`/services/accounts/users/${a.user.id}`} className="hover:underline">{a.user.name}</Link>
+                            ? <Link href={`/users/${a.user.id}`} className="hover:underline">{a.user.name}</Link>
                             : "Unknown"}
                           <span className="text-muted-foreground font-normal"> · {a.label}</span>
                         </div>

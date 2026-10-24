@@ -14,9 +14,10 @@ const fail = (error: unknown) => ({
 
 export async function addCustomerNoteAction(userId: string, body: string) {
   const admin = await assertPermission("customers.read");
-  if (!userId.trim() || userId.length > 255) {
+  if (typeof userId !== "string" || !userId.trim() || userId.length > 255) {
     return { ok: false as const, error: "Invalid customer ID." };
   }
+  if (typeof body !== "string") return { ok: false as const, error: "Invalid note text." };
   const note = body.trim();
   if (!note) return { ok: false as const, error: "Write a note before saving." };
   if (note.length > 2000) return { ok: false as const, error: "Notes must be 2,000 characters or fewer." };
@@ -37,7 +38,7 @@ export async function addCustomerNoteAction(userId: string, body: string) {
 
 export async function setCustomerNotePinnedAction(noteId: string, pinned: boolean) {
   const admin = await assertPermission("customers.read");
-  if (!noteId.trim() || typeof pinned !== "boolean") {
+  if (typeof noteId !== "string" || !noteId.trim() || typeof pinned !== "boolean") {
     return { ok: false as const, error: "Invalid note update." };
   }
 
@@ -65,6 +66,7 @@ export async function setCustomerSuspensionAction(
   if (!Number.isSafeInteger(userId) || userId <= 0 || typeof suspended !== "boolean") {
     return { ok: false as const, error: "Invalid account update." };
   }
+  if (typeof reason !== "string") return { ok: false as const, error: "Invalid suspension reason." };
   const normalizedReason = reason.trim();
   if (suspended && !normalizedReason) {
     return { ok: false as const, error: "Provide a reason for suspending this account." };

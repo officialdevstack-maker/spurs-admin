@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import Link from "next/link";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -21,7 +22,15 @@ const STATUS_TONE: Record<string, string> = {
   banned: "text-red-600",
 };
 
-export default function EarnersTable({ rows }: { rows: EarnerRow[] }) {
+export default function EarnersTable({
+  rows,
+  canManageStanding,
+  canAdjustXp,
+}: {
+  rows: EarnerRow[];
+  canManageStanding: boolean;
+  canAdjustXp: boolean;
+}) {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [q, setQ] = useState("");
@@ -95,7 +104,7 @@ export default function EarnersTable({ rows }: { rows: EarnerRow[] }) {
                 ) : paged.slice.map((r) => (
                   <tr key={r.userId}>
                     <td className="px-5 py-2.5">
-                      <div className="font-medium">{r.name ?? "Spurs user"}</div>
+                      <Link href={`/users/${encodeURIComponent(r.userId)}`} className="font-medium hover:underline">{r.name ?? "Spurs user"}</Link>
                       <div className="text-muted-foreground text-xs">{r.email ?? r.userId}</div>
                     </td>
                     <td className="px-5 py-2.5">
@@ -117,11 +126,11 @@ export default function EarnersTable({ rows }: { rows: EarnerRow[] }) {
                     <td className={`px-5 py-2.5 capitalize ${STATUS_TONE[r.status] ?? ""}`}>{r.status}</td>
                     <td className="px-5 py-2.5">
                       <div className="flex justify-end gap-1.5">
-                        <Button size="sm" variant="ghost" title="Adjust XP"
+                        {canAdjustXp && <Button size="sm" variant="ghost" title="Adjust XP"
                           onClick={() => { setXp(r); setDelta(""); setReason(""); }}>
                           <Sparkles className="size-3.5" />
-                        </Button>
-                        {r.status === "active" ? (
+                        </Button>}
+                        {canManageStanding && (r.status === "active" ? (
                           <>
                             <Button size="sm" variant="ghost" title="Restrict for a week"
                               onClick={() => { setStanding({ row: r, status: "restricted" }); setReason(""); }}>
@@ -137,7 +146,7 @@ export default function EarnersTable({ rows }: { rows: EarnerRow[] }) {
                             onClick={() => { setStanding({ row: r, status: "active" }); setReason(""); }}>
                             <ShieldCheck className="size-3.5 text-emerald-600" />
                           </Button>
-                        )}
+                        ))}
                       </div>
                     </td>
                   </tr>

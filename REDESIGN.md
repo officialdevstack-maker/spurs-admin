@@ -46,33 +46,37 @@ Required states for every data section: **loading** (use `loading.tsx` or skelet
 Mark items as they land.
 
 **Phase 0: shell** (done when the sidebar is merged)
-- [ ] `lib/workspaces.ts` single workspace with collapsible sections
-- [ ] Replace `SidebarBody`, `ContextSidebar`, `ShellFrame`, `MobileNav`, `WorkspaceHeader`
-- [ ] Delete `components/shell/AppRail.tsx`
-- [ ] Grep and delete the unused `*Tabs.tsx` files (Accounts, Pay, Wallet, Survey, Suite, Giftcard, Arena, AiTrader). Keep `SubscriptionsTabs`, which is used.
+- [x] `lib/workspaces.ts` single workspace with collapsible sections
+- [x] Replace `SidebarBody`, `ContextSidebar`, `ShellFrame`, `MobileNav`, `WorkspaceHeader`
+- [x] Delete `components/shell/AppRail.tsx`
+- [x] Grep and delete the unused `*Tabs.tsx` files (Accounts, Pay, Wallet, Survey, Suite, Giftcard, Arena, AiTrader). Keep `SubscriptionsTabs`, which is used.
 
 **Phase 1: Inbox**
-- [ ] `lib/inbox.ts` + `app/(console)/inbox/page.tsx`
-- [ ] Make `/inbox` the post-login landing page (change the redirect in `app/login/actions.ts`)
-- [ ] Add a sidebar badge with the total count (server-provided, passed into `SidebarBody`)
+- [x] `lib/inbox.ts` + `app/(console)/inbox/page.tsx`
+- [x] Make `/inbox` the post-login landing page for admins with queue permissions
+- [x] Add a sidebar badge with the total count (server-provided, passed into `SidebarBody`)
 
 **Phase 2: permissions pass** (no visual change)
-- [ ] Replace `requireAdmin()` with the correct permission in Accounts, Survey, Gift cards, Arena, Pay and Wallet pages and actions
-- [ ] Gate `/audit` with `console.audit.read`
-- [ ] Add missing audit entries for any mutation without `logAction`
+- [x] Replace `requireAdmin()` with the correct permission in Accounts, Survey, Gift cards, Arena, Pay and Wallet pages and actions
+- [x] Gate `/audit` with `console.audit.read`
+- [x] Add missing audit entries for any mutation without `logAction`
 
 **Phase 3: Customer 360**
-- [ ] Merge `app/(console)/users/[id]` and `services/accounts/users/[id]` into one page
-- [ ] DB: add `customerNotes` to `lib/db/schema.ts`, then `npx drizzle-kit push`
-- [ ] Notes UI (add, pin) with audit entries
-- [ ] Suspend / reinstate for customers (`customers.suspend`)
+- [x] Merge `app/(console)/users/[id]` and `services/accounts/users/[id]` into one page
+- [x] Add `customerNotes` to `lib/db/schema.ts` and author a SQL migration
+- [x] Notes UI (add, pin) with audit entries
+- [x] Suspend / reinstate for customers (`customers.suspend`)
+- [ ] Apply the notes and Accounts suspension migrations after confirming the target databases
 
 **Phase 4: ⌘K palette**
-- [ ] `components/shell/CommandPalette.tsx` (client) + a server action that searches users, payments and merchants
-- [ ] Mount it in `Topbar`; search by email, name, user id, payment reference
+- [x] `components/shell/CommandPalette.tsx` (client) + a server action that searches users, payments and merchants
+- [x] Mount it in `Topbar`; search by email, name, user id, payment reference
 
 **Phase 5: page-by-page restyle** (one per pass, in this order)
-Queues first: cash-outs, task submissions, gift card trades, KYC, advances. Then money pages. Then product pages. Settings last.
+- [x] Queues: cash-outs, task submissions, gift card trades, KYC, salary advances
+- [ ] Money pages
+- [ ] Product pages
+- [ ] Settings last
 
 **Phase 6: settings unification**
 - [ ] One generic `SettingsForm` replacing `PaySettingsForm`, `WalletSettingsForm`, `SuiteSettingsForm` and accounts `SettingsForm` (they differ mainly in the catalogue type and the save action)
