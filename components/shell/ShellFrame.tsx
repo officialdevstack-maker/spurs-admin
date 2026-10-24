@@ -3,7 +3,7 @@
 import { useEffect, type CSSProperties, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { workspaceFor, type Held } from "@/lib/workspaces";
-import AppRail from "./AppRail";
+import type { InboxQueueSummary } from "@/lib/inbox";
 import ContextSidebar from "./ContextSidebar";
 import Topbar from "./Topbar";
 
@@ -13,7 +13,11 @@ export interface ShellAdmin {
   permissions: Held;
 }
 
-export default function ShellFrame({ admin, children }: { admin: ShellAdmin; children: ReactNode }) {
+export default function ShellFrame({
+  admin,
+  inbox,
+  children,
+}: { admin: ShellAdmin; inbox: InboxQueueSummary; children: ReactNode }) {
   const pathname = usePathname();
   const ws = workspaceFor(pathname);
 
@@ -30,10 +34,14 @@ export default function ShellFrame({ admin, children }: { admin: ShellAdmin; chi
 
   return (
     <div data-ws className="min-h-screen" style={shellStyle}>
-      <AppRail current={ws.id} permissions={admin.permissions} />
-      <ContextSidebar ws={ws} permissions={admin.permissions} />
-      <div className="flex min-h-screen flex-col md:pl-[19rem]">
-        <Topbar ws={ws} admin={admin} />
+      <ContextSidebar
+        ws={ws}
+        permissions={admin.permissions}
+        inboxCount={inbox.total}
+        inboxIncomplete={inbox.incomplete}
+      />
+      <div className="flex min-h-screen flex-col md:pl-60">
+        <Topbar ws={ws} admin={admin} inboxCount={inbox.total} inboxIncomplete={inbox.incomplete} />
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <div className="mx-auto max-w-6xl">{children}</div>
         </main>

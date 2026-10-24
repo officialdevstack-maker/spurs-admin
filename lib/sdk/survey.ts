@@ -176,6 +176,15 @@ export async function reviewQueue(): Promise<SubmissionRow[]> {
     limit 200` as unknown as SubmissionRow[];
 }
 
+/** Counts of the survey queues requiring a human decision. */
+export async function inboxCounts(): Promise<{ cashouts: number; submissions: number }> {
+    const [row] = await sql`
+      select
+        (select count(*)::int from survey.redemptions where status = 'pending') as cashouts,
+        (select count(*)::int from survey.submissions where status = 'pending') as submissions`;
+    return { cashouts: n(row.cashouts), submissions: n(row.submissions) };
+}
+
 /** Everything anti-cheat has flagged, for the risk tab. */
 export async function flagged(): Promise<SubmissionRow[]> {
   return sql`
@@ -317,7 +326,7 @@ export interface TaskDetail {
 }
 
 export const survey = {
-  stats, redemptions, reviewQueue, flagged, riskEvents, earners, tasks, revenue, series, levelDistribution,
+  stats, redemptions, reviewQueue, inboxCounts, flagged, riskEvents, earners, tasks, revenue, series, levelDistribution,
 
   approveRedemption: (id: string, reviewer: string) =>
     act<{ ok: boolean }>({ action: "redemption.approve", id, reviewer }),

@@ -3,11 +3,16 @@
 import { usePathname } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { workspaceFor } from "@/lib/workspaces";
+import { activeItem, sectionFor, workspaceFor } from "@/lib/workspaces";
 
 export default function WorkspaceHeader() {
-  const ws = workspaceFor(usePathname());
-  const Icon = ws.icon;
+  const pathname = usePathname();
+  const ws = workspaceFor(pathname);
+  const item = activeItem(ws, pathname);
+  const section = sectionFor(ws, pathname);
+  if (!item) return null;
+
+  const Icon = item.icon;
 
   return (
     <div className="flex flex-wrap items-start justify-between gap-3">
@@ -16,14 +21,14 @@ export default function WorkspaceHeader() {
           <Icon className="size-6" />
         </span>
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{ws.label}</h1>
-          <p className="text-muted-foreground text-sm">{ws.tagline}</p>
+          <h1 className="text-2xl font-semibold tracking-tight">{item.label}</h1>
+          <p className="text-muted-foreground text-sm">{section?.label}</p>
         </div>
       </div>
-      {ws.external && (
-        <a href={ws.external.href} target="_blank" rel="noreferrer">
+      {section?.external && (
+        <a href={section.external.href} target="_blank" rel="noreferrer">
           <Badge variant="outline" className="gap-1.5">
-            <ArrowUpRight className="size-3" /> {ws.external.label}
+            <ArrowUpRight className="size-3" /> {section.external.label}
           </Badge>
         </a>
       )}

@@ -9,8 +9,8 @@ import { assignRolesAction } from "./actions";
 import type { Role } from "@/lib/sdk/accounts";
 
 export default function RoleAssigner({
-  userId, allRoles, assigned,
-}: { userId: number; allRoles: Role[]; assigned: string[] }) {
+  canAssign, userId, allRoles, assigned,
+}: { canAssign: boolean; userId: number; allRoles: Role[]; assigned: string[] }) {
   const [selected, setSelected] = useState<Set<string>>(new Set(assigned));
   const [pending, start] = useTransition();
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
@@ -22,7 +22,8 @@ export default function RoleAssigner({
     setMsg(null);
     setSelected((prev) => {
       const next = new Set(prev);
-      next.has(name) ? next.delete(name) : next.add(name);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
       return next;
     });
   };
@@ -37,6 +38,10 @@ export default function RoleAssigner({
         setMsg({ ok: false, text: res.error });
       }
     });
+
+  if (!canAssign) {
+    return <p className="text-muted-foreground text-sm">You don’t have permission to change customer roles.</p>;
+  }
 
   return (
     <div className="space-y-3">

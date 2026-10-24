@@ -1,9 +1,11 @@
 import { listHolders } from "@/lib/wallet-data";
+import { requirePermission } from "@/lib/auth";
 import HoldersTable from "./HoldersTable";
 
 export const dynamic = "force-dynamic";
 
 export default async function WalletHoldersPage() {
+  await requirePermission("money.read");
   const holders = await listHolders();
   return (
     <div className="space-y-4">

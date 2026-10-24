@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import LineChart from "@/components/charts/LineChart";
 import BarChart from "@/components/charts/BarChart";
+import { requirePermission } from "@/lib/auth";
 import { survey } from "@/lib/sdk/survey";
 
 export const dynamic = "force-dynamic";
@@ -14,6 +15,7 @@ const naira = (kobo: number) => "₦" + Math.round(kobo / 100).toLocaleString("e
 const usd = (v: number) => "$" + v.toLocaleString("en-US", { maximumFractionDigits: 2 });
 
 export default async function SurveyOverview() {
+  await requirePermission("money.read");
   const [stats, series, levels, revenue] = await Promise.all([
     survey.stats(), survey.series(14), survey.levelDistribution(), survey.revenue(30),
   ]);

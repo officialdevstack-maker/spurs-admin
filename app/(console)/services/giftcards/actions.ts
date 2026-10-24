@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin, requireSuperadmin } from "@/lib/auth";
+import { assertPermission } from "@/lib/auth";
 import { logAction } from "@/lib/audit";
 import { giftcards } from "@/lib/sdk/giftcards";
 
@@ -14,7 +14,7 @@ import { giftcards } from "@/lib/sdk/giftcards";
 const err = (e: unknown) => (e instanceof Error ? e.message : "Action failed");
 
 export async function approveTradeAction(id: string, reference: string) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("money.payouts.approve");
   try {
     await giftcards.approveTrade(id, admin.email);
     await logAction(admin, "giftcards.trade_approve", reference);
@@ -27,7 +27,7 @@ export async function approveTradeAction(id: string, reference: string) {
 }
 
 export async function rejectTradeAction(id: string, reference: string, reason: string) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("ops.review");
   try {
     await giftcards.rejectTrade(id, admin.email, reason || undefined);
     await logAction(admin, "giftcards.trade_reject", `${reference}: ${reason || "no reason given"}`);
@@ -43,7 +43,7 @@ export async function rejectTradeAction(id: string, reference: string, reason: s
  * the audit entry matters more here than anywhere else in the console.
  */
 export async function revealTradeAction(id: string, reference: string) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("ops.cards.reveal");
   try {
     const res = await giftcards.revealTrade(id, admin.email);
     await logAction(admin, "giftcards.trade_reveal", reference);
@@ -55,7 +55,7 @@ export async function revealTradeAction(id: string, reference: string) {
 
 /** Publish a new rate. Superadmin only — this directly sets what we pay out. */
 export async function setRateAction(formData: FormData) {
-  const admin = await requireSuperadmin();
+  const admin = await assertPermission("money.rates.manage");
 
   const brandId = String(formData.get("brandId") ?? "");
   const naira = Number(formData.get("buyPerUnit") ?? 0);       // naira per 1 unit of face
@@ -81,7 +81,7 @@ export async function setRateAction(formData: FormData) {
 }
 
 export async function upsertBrandAction(formData: FormData) {
-  const admin = await requireSuperadmin();
+  const admin = await assertPermission("platform.settings.manage");
 
   const slug = String(formData.get("slug") ?? "").trim();
   const name = String(formData.get("name") ?? "").trim();
@@ -101,7 +101,7 @@ export async function upsertBrandAction(formData: FormData) {
 }
 
 export async function runJobsAction() {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.scheduler.manage");
   try {
     const r = await giftcards.runJobs();
     await logAction(admin, "giftcards.run_jobs", `${r.ran} ran, ${r.failed} failed`);
@@ -113,7 +113,7 @@ export async function runJobsAction() {
 }
 
 export async function cancelOrderAction(id: string, reason: string) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("money.refund");
   try {
     await giftcards.cancelOrder(id, reason);
     await logAction(admin, "giftcards.order_cancel", `${id}: ${reason}`);

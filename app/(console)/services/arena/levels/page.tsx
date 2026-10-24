@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Plus } from "lucide-react";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { overview } from "@/lib/arena";
 import { seedLevelsAction, upsertLevelAction, deleteLevelAction } from "../actions";
 
@@ -11,7 +11,7 @@ const btn = "bg-primary text-primary-foreground rounded-lg px-4 py-2 text-sm fon
 const naira = (kobo: number) => Math.round(kobo / 100);
 
 export default async function ArenaLevels() {
-  await requireAdmin();
+  await requirePermission("money.adjust");
   const data = await overview();
   const levels = [...(data?.levels ?? [])].sort((a, b) => a.level - b.level);
 

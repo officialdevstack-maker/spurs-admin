@@ -1,9 +1,11 @@
 import { listMerchants } from "@/lib/pay-data";
+import { requirePermission } from "@/lib/auth";
 import MerchantsTable from "./MerchantsTable";
 
 export const dynamic = "force-dynamic";
 
 export default async function MerchantsPage() {
+  await requirePermission("money.read");
   const merchants = await listMerchants();
   return (
     <div className="space-y-4">

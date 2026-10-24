@@ -4,6 +4,7 @@ import { ArrowLeft, Mail, Hash, CalendarDays, Webhook, KeyRound, Building2, Cred
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { requirePermission } from "@/lib/auth";
 import { getMerchant } from "@/lib/pay-data";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +16,7 @@ const sv: Record<string, "success" | "warning" | "destructive" | "secondary"> = 
 };
 
 export default async function MerchantDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  await requirePermission("money.read");
   const { id } = await params;
   const m = await getMerchant(id);
   if (!m) notFound();

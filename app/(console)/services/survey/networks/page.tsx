@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { resolveConfig } from "@/lib/credentials";
+import { requirePermission } from "@/lib/auth";
 import { survey } from "@/lib/sdk/survey";
 import { saveNetworkAction, saveEconomicsAction } from "./actions";
 
@@ -35,6 +36,7 @@ const NETWORKS = [
 const APP_URL = process.env.SURVEY_PUBLIC_URL ?? "http://127.0.0.1:3400";
 
 export default async function Networks() {
+  await requirePermission("platform.settings.manage");
   const [config, revenue] = await Promise.all([resolveConfig("survey"), survey.revenue(30)]);
 
   const revenueShare = config.SURVEY_REVENUE_SHARE ?? "0.6";

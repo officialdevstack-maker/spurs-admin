@@ -5,6 +5,7 @@ import LineChart, { type Point } from "@/components/charts/LineChart";
 import BarChart from "@/components/charts/BarChart";
 import DonutChart from "@/components/charts/DonutChart";
 import ServiceFlow, { type FlowEdge } from "@/components/ServiceFlow";
+import { requirePermission } from "@/lib/auth";
 import { walletStats, txnSeries, sourceBreakdown, balanceByAsset, connections } from "@/lib/wallet-data";
 
 export const dynamic = "force-dynamic";
@@ -32,6 +33,7 @@ function buildPoints(series: { date: string; value: number }[], days: number): P
 }
 
 export default async function WalletOverview() {
+  await requirePermission("money.read");
   const [stats, series, sources, assets, conn] = await Promise.all([
     walletStats(), txnSeries(14), sourceBreakdown(), balanceByAsset(), connections(),
   ]);

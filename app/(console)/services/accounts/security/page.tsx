@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LogIn, LogOut, UserPlus, KeyRound, ShieldCheck, AppWindow, Activity, MapPin } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import Pagination from "@/components/Pagination";
+import { requirePermission } from "@/lib/auth";
 import { accounts } from "@/lib/sdk/accounts";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +25,7 @@ function riskChip(risk: number) {
 }
 
 export default async function SecurityPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  await requirePermission("customers.read");
   const { page: pageParam } = await searchParams;
   const all = await accounts.securityEvents(300);
   const page = Math.max(1, Number(pageParam) || 1);

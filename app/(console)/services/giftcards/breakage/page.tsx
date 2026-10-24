@@ -1,6 +1,7 @@
 import { PieChart, Wallet, TrendingDown, Info } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import BarChart from "@/components/charts/BarChart";
+import { requirePermission } from "@/lib/auth";
 import { giftcards, naira } from "@/lib/sdk/giftcards";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +21,7 @@ const SOURCE_LABEL: Record<string, string> = {
  * commercially, the margin of the whole closed-loop model.
  */
 export default async function Breakage() {
+  await requirePermission("money.read");
   const [stats, spent, sources] = await Promise.all([
     giftcards.stats(), giftcards.breakage(365), giftcards.creditSources(365),
   ]);

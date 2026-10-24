@@ -2,6 +2,7 @@ import { ShieldAlert, Timer, Ban } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Pagination from "@/components/Pagination";
+import { requirePermission } from "@/lib/auth";
 import { survey } from "@/lib/sdk/survey";
 import { RiskBadge, SIGNAL_LABEL } from "../review/ReviewQueue";
 
@@ -20,6 +21,7 @@ const ACTION_TONE: Record<string, string> = {
 };
 
 export default async function Risk({ searchParams }: { searchParams: Promise<{ page?: string; log?: string }> }) {
+  await requirePermission("ops.fraud.read");
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page) || 1);
   const logPage = Math.max(1, Number(sp.log) || 1);

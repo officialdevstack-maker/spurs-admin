@@ -1,9 +1,11 @@
 import { accounts } from "@/lib/sdk/accounts";
+import { requirePermission } from "@/lib/auth";
 import AccountsUsersTable from "./AccountsUsersTable";
 
 export const dynamic = "force-dynamic";
 
 export default async function AccountsUsersPage() {
+  await requirePermission("customers.read");
   const [users, roles] = await Promise.all([accounts.users(), accounts.roles()]);
   const roleOptions = roles.map((r) => ({ label: r.label, value: r.name }));
 

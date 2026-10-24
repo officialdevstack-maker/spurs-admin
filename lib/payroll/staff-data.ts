@@ -1,5 +1,5 @@
 import "server-only";
-import { and, asc, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { and, asc, count, desc, eq, gte, lte, sql } from "drizzle-orm";
 import {
   db, staffProfiles, salaryAdvances, attendance,
   type StaffProfile, type SalaryAdvance,
@@ -76,6 +76,14 @@ export async function listAdvances(status?: string): Promise<(SalaryAdvance & { 
     .orderBy(desc(salaryAdvances.createdAt))
     .limit(200);
   return rows.map((r) => ({ ...r.advance, staffName: r.staffName }));
+}
+
+export async function countPendingAdvances(): Promise<number> {
+  const [row] = await db
+    .select({ total: count() })
+    .from(salaryAdvances)
+    .where(eq(salaryAdvances.status, "pending"));
+  return row.total;
 }
 
 export async function reviewAdvance(

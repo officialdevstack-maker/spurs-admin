@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { overview } from "@/lib/arena";
 import { createMatchAction, settleMatchAction } from "../actions";
 
@@ -10,7 +10,7 @@ const inp = "h-9 w-full rounded-lg border bg-transparent px-2.5 text-sm outline-
 const odds = (x?: number | null) => (x && x > 100 ? (x / 100).toFixed(2) : "—");
 
 export default async function ArenaMatches() {
-  await requireAdmin();
+  await requirePermission("money.read");
   const data = await overview();
   const games = (data?.games ?? []).filter((g) => g.supportsBetting);
   const matches = data?.matches ?? [];

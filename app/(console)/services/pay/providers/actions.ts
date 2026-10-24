@@ -2,7 +2,7 @@
 
 import { randomBytes } from "node:crypto";
 import { revalidatePath } from "next/cache";
-import { requireSuperadmin } from "@/lib/auth";
+import { assertPermission } from "@/lib/auth";
 import { upsertCredential } from "@/lib/credentials";
 import { logAction } from "@/lib/audit";
 import { PROVIDERS, credKey, feePercentKey, feeFlatKey, webhookSecretKey, buildWebhookUrl } from "@/lib/pay-providers";
@@ -17,7 +17,7 @@ export async function saveProviderAction(input: {
   feeFlat: string;
 }) {
   let admin;
-  try { admin = await requireSuperadmin(); } catch (e) { return fail(e); }
+  try { admin = await assertPermission("platform.credentials.manage"); } catch (e) { return fail(e); }
 
   const def = PROVIDERS.find((p) => p.id === input.provider);
   if (!def) return fail(new Error("Unknown provider"));
@@ -42,7 +42,7 @@ export async function saveProviderAction(input: {
 /** Generate or rotate the provider's webhook secret; returns the new URL. */
 export async function refreshWebhookAction(provider: string) {
   let admin;
-  try { admin = await requireSuperadmin(); } catch (e) { return fail(e); }
+  try { admin = await assertPermission("platform.credentials.manage"); } catch (e) { return fail(e); }
 
   const def = PROVIDERS.find((p) => p.id === provider);
   if (!def) return fail(new Error("Unknown provider"));

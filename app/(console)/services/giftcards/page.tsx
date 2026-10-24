@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import LineChart from "@/components/charts/LineChart";
 import BarChart from "@/components/charts/BarChart";
+import { requirePermission } from "@/lib/auth";
 import { giftcards, naira } from "@/lib/sdk/giftcards";
 
 export const dynamic = "force-dynamic";
@@ -20,6 +21,7 @@ const SOURCE_LABEL: Record<string, string> = {
 };
 
 export default async function GiftcardsOverview() {
+  await requirePermission("money.read");
   const [stats, series, breakage, sources] = await Promise.all([
     giftcards.stats(), giftcards.series(14), giftcards.breakage(90), giftcards.creditSources(90),
   ]);

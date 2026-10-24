@@ -142,6 +142,14 @@ export async function reviewQueue(): Promise<TradeRow[]> {
   return rows as unknown as TradeRow[];
 }
 
+export async function pendingReviewCount(): Promise<number> {
+  const [row] = await sql`
+    select count(*)::int as total
+    from giftcards.trades
+    where status in ('submitted', 'checking', 'needs_review')`;
+  return n(row.total);
+}
+
 export async function recentTrades(limit = 100): Promise<TradeRow[]> {
   const rows = await sql`
     select t.id, t.reference, t.user_id as "userId", u.name, u.email,
@@ -257,7 +265,7 @@ async function act<T>(body: Record<string, unknown>): Promise<T> {
 }
 
 export const giftcards = {
-  stats, reviewQueue, recentTrades, rates, breakage, creditSources, series, recentOrders, failedJobs,
+  stats, reviewQueue, pendingReviewCount, recentTrades, rates, breakage, creditSources, series, recentOrders, failedJobs,
 
   approveTrade: (id: string, reviewer: string) =>
     act<{ ok: boolean }>({ action: "trade.approve", id, reviewer }),

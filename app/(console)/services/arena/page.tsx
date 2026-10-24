@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { overview } from "@/lib/arena";
 import { resolveDisputeAction, finalizeTournamentAction, refundOrderAction } from "./actions";
 
@@ -10,7 +10,7 @@ const naira = (m: number) => "₦" + Math.round((m ?? 0) / 100).toLocaleString("
 const inp = "h-9 w-full rounded-lg border bg-transparent px-2.5 text-sm outline-none focus:border-primary";
 
 export default async function ArenaOverview() {
-  await requireAdmin();
+  await requirePermission("money.read");
   const data = await overview();
 
   if (!data) {

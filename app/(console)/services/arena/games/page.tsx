@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { overview } from "@/lib/arena";
 import { upsertGameAction, seedGamesAction } from "../actions";
 
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 const inp = "h-9 w-full rounded-lg border bg-transparent px-2.5 text-sm outline-none focus:border-primary";
 
 export default async function ArenaGames() {
-  await requireAdmin();
+  await requirePermission("platform.settings.manage");
   const data = await overview();
   const games = data?.games ?? [];
 

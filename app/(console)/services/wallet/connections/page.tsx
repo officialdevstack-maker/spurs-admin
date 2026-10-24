@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Fingerprint, CreditCard, Landmark, Send, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ServiceFlow, { type FlowEdge } from "@/components/ServiceFlow";
+import { requirePermission } from "@/lib/auth";
 import { walletStats, connections } from "@/lib/wallet-data";
 
 export const dynamic = "force-dynamic";
@@ -9,6 +10,7 @@ export const dynamic = "force-dynamic";
 const naira = (k: number) => "₦" + Math.round(k / 100).toLocaleString("en-NG");
 
 export default async function WalletConnectionsPage() {
+  await requirePermission("money.read");
   const [stats, conn] = await Promise.all([walletStats(), connections()]);
 
   const edges: FlowEdge[] = [

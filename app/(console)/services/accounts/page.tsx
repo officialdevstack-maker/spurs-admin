@@ -7,6 +7,7 @@ import LineChart, { type Point } from "@/components/charts/LineChart";
 import BarChart from "@/components/charts/BarChart";
 import DonutChart from "@/components/charts/DonutChart";
 import { accounts } from "@/lib/sdk/accounts";
+import { requirePermission } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,7 @@ const BAND_COLOR: Record<string, string> = {
 };
 
 export default async function AccountsOverview() {
+  await requirePermission("customers.read");
   const [o, a] = await Promise.all([accounts.overview(), accounts.analytics(14)]);
 
   const tiles = [

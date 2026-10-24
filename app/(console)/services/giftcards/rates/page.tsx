@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { requirePermission } from "@/lib/auth";
 import { giftcards } from "@/lib/sdk/giftcards";
 import { setRateAction, upsertBrandAction } from "../actions";
 
@@ -13,6 +14,7 @@ const when = (s: string | null) =>
   s ? new Date(s).toLocaleString("en-NG", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "never";
 
 export default async function Rates() {
+  await requirePermission("money.rates.manage");
   const rows = await giftcards.rates();
 
   return (

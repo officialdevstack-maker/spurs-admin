@@ -1,6 +1,6 @@
 import { EyeOff } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { requireAdmin } from "@/lib/auth";
+import { can, requirePermission } from "@/lib/auth";
 import { resolveConfig } from "@/lib/credentials";
 import { providerStates } from "@/lib/pay-providers";
 import ProvidersManager from "./ProvidersManager";
@@ -8,7 +8,8 @@ import ProvidersManager from "./ProvidersManager";
 export const dynamic = "force-dynamic";
 
 export default async function PayProviders() {
-  const admin = await requireAdmin();
+  await requirePermission("platform.credentials.manage");
+  const canEdit = await can("platform.credentials.manage");
   const cfg = await resolveConfig("pay");
   const providers = providerStates(cfg);
   const current = providers.some((p) => p.id === cfg.PAY_PROVIDER)
@@ -26,7 +27,7 @@ export default async function PayProviders() {
       <ProvidersManager
         providers={providers}
         current={current}
-        canEdit={admin.role === "superadmin"}
+        canEdit={canEdit}
       />
 
       <Card>

@@ -1,6 +1,7 @@
 import { Clock, ShieldCheck, ShieldAlert } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Pagination from "@/components/Pagination";
+import { can, requirePermission } from "@/lib/auth";
 import { accounts } from "@/lib/sdk/accounts";
 import KycQueue from "./KycQueue";
 
@@ -9,8 +10,12 @@ export const dynamic = "force-dynamic";
 const PAGE_SIZE = 10;
 
 export default async function KycPage({ searchParams }: { searchParams: Promise<{ status?: string; page?: string }> }) {
+  await requirePermission("customers.read");
   const { status, page: pageParam } = await searchParams;
-  const { kyc, counts } = await accounts.kycQueue(status);
+  const [{ kyc, counts }, canReview] = await Promise.all([
+    accounts.kycQueue(status),
+    can("customers.kyc.review"),
+  ]);
 
   const page = Math.max(1, Number(pageParam) || 1);
   const rows = kyc.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
@@ -24,7 +29,7 @@ export default async function KycPage({ searchParams }: { searchParams: Promise<
   return (
     <div className="space-y-6">
       <p className="text-muted-foreground text-sm">
-        Identity verification requests. Approving here sets the account's tier, which rides the Spurs session to Wallet, Pay and Cloud. A reused BVN/NIN is flagged automatically.
+        Identity verification requests. Approving here sets the account&apos;s tier, which rides the Spurs session to Wallet, Pay and Cloud. A reused BVN/NIN is flagged automatically.
       </p>
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -39,7 +44,7 @@ export default async function KycPage({ searchParams }: { searchParams: Promise<
         ))}
       </div>
 
-      <KycQueue rows={rows} />
+      <KycQueue canReview={canReview} rows={rows} />
       <Pagination page={page} pageSize={PAGE_SIZE} total={kyc.length}
         basePath="/services/accounts/kyc" params={{ status }} />
     </div>

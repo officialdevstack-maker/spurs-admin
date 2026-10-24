@@ -1,13 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/auth";
+import { assertPermission } from "@/lib/auth";
 import { logAction } from "@/lib/audit";
 import { upsertCredential } from "@/lib/credentials";
 import { PAY_SETTING_TYPES } from "@/lib/pay-settings";
 
 export async function savePaySettingsAction(values: Record<string, boolean | number | string>) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.settings.manage");
   try {
     for (const [key, value] of Object.entries(values)) {
       if (!(key in PAY_SETTING_TYPES)) continue;

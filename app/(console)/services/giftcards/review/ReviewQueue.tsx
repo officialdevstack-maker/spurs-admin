@@ -46,7 +46,11 @@ function RiskBadge({ score }: { score: number }) {
  * automated check cleared it outright), so this screen is the last line
  * between a fraudulent card and real money.
  */
-export default function ReviewQueue({ rows }: { rows: TradeRow[] }) {
+export default function ReviewQueue({
+  rows,
+  canApprove,
+  canReveal,
+}: { rows: TradeRow[]; canApprove: boolean; canReveal: boolean }) {
   const [pending, start] = useTransition();
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -136,13 +140,17 @@ export default function ReviewQueue({ rows }: { rows: TradeRow[] }) {
               </div>
 
               <div className="flex gap-2">
-                <Button size="sm" variant="ghost" onClick={() => reveal(r)} disabled={pending} title="Show the card code">
-                  <Eye className="size-3.5" />
-                </Button>
-                <Button size="sm" onClick={() => approve(r)} disabled={pending}>
-                  {busy === r.id && pending ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
-                  Approve
-                </Button>
+                {canReveal && (
+                  <Button size="sm" variant="ghost" onClick={() => reveal(r)} disabled={pending} title="Show the card code">
+                    <Eye className="size-3.5" />
+                  </Button>
+                )}
+                {canApprove && (
+                  <Button size="sm" onClick={() => approve(r)} disabled={pending}>
+                    {busy === r.id && pending ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
+                    Approve
+                  </Button>
+                )}
                 <Button size="sm" variant="outline" onClick={() => { setRejecting(r); setReason(""); }} disabled={pending}>
                   <X className="size-3.5" /> Decline
                 </Button>

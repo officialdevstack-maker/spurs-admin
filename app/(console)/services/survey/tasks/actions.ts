@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/auth";
+import { assertPermission } from "@/lib/auth";
 import { logAction } from "@/lib/audit";
 import { survey, type TaskInput, type QuestionInput } from "@/lib/sdk/survey";
 
@@ -13,7 +13,7 @@ export async function saveTaskAction(
   task: TaskInput,
   questions: QuestionInput[],
 ) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("ops.tasks.manage");
   try {
     const payload = { ...task, createdBy: admin.email, ownerType: "platform" as const };
     const res = id
@@ -30,7 +30,7 @@ export async function saveTaskAction(
 }
 
 export async function setTaskStatusAction(id: string, status: "draft" | "live" | "paused" | "closed") {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("ops.tasks.manage");
   try {
     await survey.setTaskStatus(id, status);
     await logAction(admin, "survey.task_status", `${id} → ${status}`);
@@ -42,7 +42,7 @@ export async function setTaskStatusAction(id: string, status: "draft" | "live" |
 }
 
 export async function deleteTaskAction(id: string) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("ops.tasks.manage");
   try {
     await survey.deleteTask(id);
     await logAction(admin, "survey.task_delete", id);

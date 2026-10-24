@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { resolveConfig } from "@/lib/credentials";
 import { saveArenaSettings } from "../actions";
 
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 const inp = "h-10 w-full rounded-lg border bg-transparent px-3 text-sm outline-none focus:border-primary";
 
 export default async function ArenaSettings() {
-  await requireAdmin();
+  await requirePermission("platform.credentials.manage");
   const cfg = await resolveConfig("esport").catch(() => ({}) as Record<string, string>);
   const set = (k: string) => Boolean(cfg[k]);
 

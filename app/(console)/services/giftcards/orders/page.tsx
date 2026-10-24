@@ -2,6 +2,7 @@ import { Receipt } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Pagination from "@/components/Pagination";
+import { requirePermission } from "@/lib/auth";
 import { giftcards, naira } from "@/lib/sdk/giftcards";
 
 export const dynamic = "force-dynamic";
@@ -15,6 +16,7 @@ const STATUS: Record<string, "default" | "secondary" | "outline" | "destructive"
 };
 
 export default async function Orders({ searchParams }: { searchParams: Promise<{ page?: string; t?: string }> }) {
+  await requirePermission("money.read");
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page) || 1);
   const tPage = Math.max(1, Number(sp.t) || 1);

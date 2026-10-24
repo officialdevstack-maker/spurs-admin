@@ -1,7 +1,9 @@
 import { listTransactions } from "@/lib/data";
+import { requirePermission } from "@/lib/auth";
 import TransactionsTable from "./TransactionsTable";
 
 export default async function TransactionsPage() {
+  await requirePermission("money.read");
   const txns = await listTransactions(500);
   return (
     <div className="space-y-6">

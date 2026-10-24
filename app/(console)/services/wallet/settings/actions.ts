@@ -1,13 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/auth";
+import { assertPermission } from "@/lib/auth";
 import { logAction } from "@/lib/audit";
 import { upsertCredential } from "@/lib/credentials";
 import { WALLET_SETTING_TYPES } from "@/lib/wallet-settings";
 
 export async function saveWalletSettingsAction(values: Record<string, boolean | number | string>) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.settings.manage");
   try {
     for (const [key, value] of Object.entries(values)) {
       if (!(key in WALLET_SETTING_TYPES)) continue;

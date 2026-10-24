@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/auth";
+import { assertPermission } from "@/lib/auth";
 import { logAction } from "@/lib/audit";
 import { survey } from "@/lib/sdk/survey";
 
@@ -15,7 +15,7 @@ const err = (e: unknown) => (e instanceof Error ? e.message : "Action failed");
 
 /** Approve a cash-out. This starts the hold; the wallet is credited when it elapses. */
 export async function approveCashoutAction(id: string, reference: string) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("money.payouts.approve");
   try {
     await survey.approveRedemption(id, admin.email);
     await logAction(admin, "survey.cashout_approve", reference);
@@ -29,7 +29,7 @@ export async function approveCashoutAction(id: string, reference: string) {
 
 /** Decline a cash-out. The user's points are returned immediately. */
 export async function rejectCashoutAction(id: string, reference: string, reason: string) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("money.payouts.approve");
   try {
     await survey.rejectRedemption(id, admin.email, reason || undefined);
     await logAction(admin, "survey.cashout_reject", `${reference}: ${reason || "no reason given"}`);
@@ -43,7 +43,7 @@ export async function rejectCashoutAction(id: string, reference: string, reason:
 
 /** Release every hold that has already elapsed, without waiting for the scheduler. */
 export async function processPayoutsAction() {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("money.payouts.approve");
   try {
     const r = await survey.processPayouts();
     await logAction(admin, "survey.process_payouts", `${r.credited} credited, ${r.failed} failed`);
@@ -56,7 +56,7 @@ export async function processPayoutsAction() {
 }
 
 export async function approveSubmissionAction(id: string) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("ops.review");
   try {
     const r = await survey.approveSubmission(id, admin.email);
     await logAction(admin, "survey.submission_approve", `${id} (+${r.points} pts)`);
@@ -68,7 +68,7 @@ export async function approveSubmissionAction(id: string) {
 }
 
 export async function rejectSubmissionAction(id: string, reason: string) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("ops.review");
   try {
     await survey.rejectSubmission(id, admin.email, reason || undefined);
     await logAction(admin, "survey.submission_reject", `${id}: ${reason || "no reason given"}`);
@@ -85,7 +85,7 @@ export async function setStandingAction(
   reason: string,
   days?: number,
 ) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("customers.suspend");
   try {
     await survey.setStanding(userId, status, admin.email, reason || undefined, days);
     await logAction(admin, "survey.set_standing", `${userId} → ${status}`);
@@ -98,7 +98,7 @@ export async function setStandingAction(
 }
 
 export async function adjustXpAction(userId: string, delta: number, reason: string) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("money.adjust");
   try {
     await survey.adjustXp(userId, delta, admin.email, reason || undefined);
     await logAction(admin, "survey.adjust_xp", `${userId} ${delta > 0 ? "+" : ""}${delta} XP`);

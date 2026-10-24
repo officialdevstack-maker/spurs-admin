@@ -100,6 +100,20 @@ export const auditLog = admin.table(
   (t) => [index("audit_created_idx").on(t.createdAt)],
 );
 
+export const customerNotes = admin.table(
+  "customer_notes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: text("user_id").notNull(),
+    body: text("body").notNull(),
+    pinned: boolean("pinned").notNull().default(false),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (t) => [index("customer_notes_user_created_idx").on(t.userId, t.createdAt)],
+);
+
 /* ------------------------------------------------------------------ roles */
 
 /**

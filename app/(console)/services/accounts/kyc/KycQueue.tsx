@@ -19,7 +19,7 @@ const STATUS: Record<string, { variant: "success" | "warning" | "destructive" | 
 
 const when = (s: string | null) => (s ? new Date(s).toLocaleString("en-NG", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "—");
 
-export default function KycQueue({ rows }: { rows: KycRow[] }) {
+export default function KycQueue({ canReview, rows }: { canReview: boolean; rows: KycRow[] }) {
   const [pending, start] = useTransition();
   const [busy, setBusy] = useState<number | null>(null);
   const [reason, setReason] = useState<Record<number, string>>({});
@@ -84,7 +84,7 @@ export default function KycQueue({ rows }: { rows: KycRow[] }) {
 
               {k.rejection_reason && <p className="text-destructive text-xs">Rejected: {k.rejection_reason}</p>}
 
-              {open && (
+              {open && canReview && (
                 <div className="flex flex-wrap items-center gap-2 border-t pt-3">
                   <Button size="sm" disabled={pending && busy === k.id} onClick={() => review(k.id, "approve", 1)}>
                     {pending && busy === k.id ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />} Approve tier 1

@@ -1,9 +1,11 @@
 import { listPayouts } from "@/lib/pay-data";
+import { requirePermission } from "@/lib/auth";
 import PayoutsTable from "./PayoutsTable";
 
 export const dynamic = "force-dynamic";
 
 export default async function PayoutsPage() {
+  await requirePermission("money.read");
   const payouts = await listPayouts();
   return (
     <div className="space-y-4">

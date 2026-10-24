@@ -1,7 +1,9 @@
 import { listPayments } from "@/lib/data";
+import { requirePermission } from "@/lib/auth";
 import PaymentsTable from "./PaymentsTable";
 
 export default async function PaymentsPage() {
+  await requirePermission("money.read");
   const payments = await listPayments(500);
   return (
     <div className="space-y-6">

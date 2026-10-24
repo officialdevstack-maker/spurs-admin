@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { requirePermission } from "@/lib/auth";
 import TaskBuilder from "../TaskBuilder";
 
-export default function NewTask() {
+export default async function NewTask() {
+  await requirePermission("ops.tasks.manage");
   return (
     <div className="space-y-4">
       <div>

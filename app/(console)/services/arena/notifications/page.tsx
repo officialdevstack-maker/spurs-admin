@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { overview } from "@/lib/arena";
 import { sendNotificationAction } from "../actions";
 
@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 const inp = "h-10 w-full rounded-lg border bg-transparent px-3 text-sm outline-none focus:border-primary";
 
 export default async function ArenaNotifications() {
-  await requireAdmin();
+  await requirePermission("platform.mail.manage");
   const data = await overview();
   const sent = data?.notifications ?? [];
 

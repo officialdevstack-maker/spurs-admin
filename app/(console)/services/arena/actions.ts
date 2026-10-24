@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/auth";
+import { assertPermission } from "@/lib/auth";
 import { upsertCredential } from "@/lib/credentials";
 import { logAction } from "@/lib/audit";
 import { arenaAction } from "@/lib/arena";
@@ -13,7 +13,7 @@ const bump = () => { revalidatePath("/services/arena"); revalidatePath("/service
 /* ------------------------------------------------------------- settlement */
 
 export async function resolveDisputeAction(fd: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("money.payouts.approve");
   const challengeId = String(fd.get("challengeId") ?? "");
   const winnerId = String(fd.get("winnerId") ?? "").trim(); // "" = void (refund both)
   const r = await arenaAction("challenge.resolve", { challengeId, winnerId: winnerId || undefined });
@@ -22,7 +22,7 @@ export async function resolveDisputeAction(fd: FormData) {
 }
 
 export async function settleMatchAction(fd: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("money.payouts.approve");
   const matchId = String(fd.get("matchId") ?? "");
   const result = String(fd.get("result") ?? "");
   const homeScore = fd.get("homeScore") ? Number(fd.get("homeScore")) : undefined;
@@ -33,7 +33,7 @@ export async function settleMatchAction(fd: FormData) {
 }
 
 export async function finalizeTournamentAction(fd: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("money.payouts.approve");
   const tournamentId = String(fd.get("tournamentId") ?? "");
   // Ranked winners, first place first — one user id per line or comma-separated.
   const rankedUserIds = String(fd.get("rankedUserIds") ?? "").split(/[\n,]/).map((s) => s.trim()).filter(Boolean);
@@ -43,7 +43,7 @@ export async function finalizeTournamentAction(fd: FormData) {
 }
 
 export async function refundOrderAction(fd: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("money.refund");
   const orderId = String(fd.get("orderId") ?? "");
   const r = await arenaAction("order.refund", { orderId });
   if (r.ok) await logAction(admin, "arena.order.refund", orderId);
@@ -53,14 +53,14 @@ export async function refundOrderAction(fd: FormData) {
 /* ---------------------------------------------------------------- content */
 
 export async function seedGamesAction() {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.settings.manage");
   await arenaAction("seed", {});
   await logAction(admin, "arena.seed", "games");
   bump();
 }
 
 export async function upsertGameAction(fd: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.settings.manage");
   const game = {
     slug: String(fd.get("slug") ?? "").trim().toLowerCase(),
     name: String(fd.get("name") ?? "").trim(),
@@ -84,14 +84,14 @@ export async function upsertGameAction(fd: FormData) {
 const bumpLevels = () => revalidatePath("/services/arena/levels");
 
 export async function seedLevelsAction() {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.settings.manage");
   await arenaAction("levels.seed", {});
   await logAction(admin, "arena.levels.seed", "levels");
   bumpLevels();
 }
 
 export async function upsertLevelAction(fd: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("money.adjust");
   const level = {
     level: Number(fd.get("level") ?? 0),
     minXp: Number(fd.get("minXp") ?? 0),
@@ -104,7 +104,7 @@ export async function upsertLevelAction(fd: FormData) {
 }
 
 export async function deleteLevelAction(fd: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("money.adjust");
   const level = Number(fd.get("level") ?? 0);
   const r = await arenaAction("level.delete", { level });
   if (r.ok) await logAction(admin, "arena.level.delete", String(level));
@@ -112,7 +112,7 @@ export async function deleteLevelAction(fd: FormData) {
 }
 
 export async function sendNotificationAction(fd: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.mail.manage");
   const audience = String(fd.get("audience") ?? "all") === "user" ? "user" : "all";
   const notification = {
     audience,
@@ -129,7 +129,7 @@ export async function sendNotificationAction(fd: FormData) {
 }
 
 export async function createMatchAction(fd: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("money.rates.manage");
   const match = {
     gameId: String(fd.get("gameId") ?? ""),
     homeName: String(fd.get("homeName") ?? "").trim(),
@@ -153,7 +153,7 @@ const SECRET_KEYS = new Set(["COC_API_TOKEN", "PUBG_API_KEY"]);
 const SETTING_FIELDS = ["COC_API_TOKEN", "PUBG_API_KEY", "ESPORT_INTERNAL_URL"];
 
 export async function saveArenaSettings(formData: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.credentials.manage");
   const changed: string[] = [];
   for (const key of SETTING_FIELDS) {
     const raw = formData.get(key);

@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireSuperadmin } from "@/lib/auth";
+import { assertPermission } from "@/lib/auth";
 import { upsertCredential } from "@/lib/credentials";
 import { logAction } from "@/lib/audit";
 
@@ -14,7 +14,7 @@ import { logAction } from "@/lib/audit";
 const APP = "survey";
 
 export async function saveNetworkAction(formData: FormData) {
-  const admin = await requireSuperadmin();
+  const admin = await assertPermission("platform.credentials.manage");
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
@@ -45,7 +45,7 @@ export async function saveNetworkAction(formData: FormData) {
 }
 
 export async function saveEconomicsAction(formData: FormData) {
-  const admin = await requireSuperadmin();
+  const admin = await assertPermission("platform.settings.manage");
 
   const entries: [string, string][] = [
     ["SURVEY_REVENUE_SHARE", String(formData.get("revenueShare") ?? "")],

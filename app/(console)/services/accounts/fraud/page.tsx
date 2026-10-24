@@ -3,6 +3,7 @@ import { ShieldAlert, TrendingUp, KeyRound, Globe, Network, MapPin, Monitor } fr
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Pagination from "@/components/Pagination";
+import { requirePermission } from "@/lib/auth";
 import { accounts } from "@/lib/sdk/accounts";
 
 export const dynamic = "force-dynamic";
@@ -21,6 +22,7 @@ function riskChip(risk: number) {
 }
 
 export default async function FraudPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+  await requirePermission("customers.read");
   const { page: pageParam } = await searchParams;
   const [o, all] = await Promise.all([accounts.fraudOverview(), accounts.fraudAlerts(200)]);
   const page = Math.max(1, Number(pageParam) || 1);

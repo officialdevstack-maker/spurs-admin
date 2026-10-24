@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { requirePermission } from "@/lib/auth";
 import { survey, type QuestionInput } from "@/lib/sdk/survey";
 import TaskBuilder from "../TaskBuilder";
 
 export const dynamic = "force-dynamic";
 
 export default async function EditTask({ params }: { params: Promise<{ id: string }> }) {
+  await requirePermission("ops.tasks.manage");
   const { id } = await params;
 
   const detail = await survey.getTask(id).catch(() => null);
