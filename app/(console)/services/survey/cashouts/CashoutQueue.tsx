@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import EmptyState from "@/components/page/EmptyState";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -42,6 +43,8 @@ export default function CashoutQueue({ rows, holdNote }: { rows: RedemptionRow[]
   const [error, setError] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const [rejecting, setRejecting] = useState<RedemptionRow | null>(null);
+  const [approving, setApproving] = useState<RedemptionRow | null>(null);
+  const [confirmRelease, setConfirmRelease] = useState(false);
   const [reason, setReason] = useState("");
 
   const awaiting = rows.filter((r) => r.status === "pending");
@@ -49,13 +52,16 @@ export default function CashoutQueue({ rows, holdNote }: { rows: RedemptionRow[]
   const pagedAwaiting = usePaged(awaiting, 20);
   const pagedHeld = usePaged(held, 20);
 
-  const approve = (r: RedemptionRow) =>
+  const approve = () => {
+    if (!approving) return;
+    const r = approving;
     start(async () => {
       setBusy(r.id); setError(null); setNote(null);
       const res = await approveCashoutAction(r.id, r.reference);
-      setBusy(null);
+      setBusy(null); setApproving(null);
       if (!res.ok) setError(res.error);
     });
+  };
 
   const reject = () => {
     if (!rejecting) return;
@@ -74,6 +80,7 @@ export default function CashoutQueue({ rows, holdNote }: { rows: RedemptionRow[]
       const res = await processPayoutsAction();
       if (res.ok) setNote(`${res.credited} credited${res.failed ? `, ${res.failed} failed` : ""}.`);
       else setError(res.error);
+      setConfirmRelease(false);
     });
 
   const Row = ({ r }: { r: RedemptionRow }) => (
@@ -108,7 +115,7 @@ export default function CashoutQueue({ rows, holdNote }: { rows: RedemptionRow[]
         </div>
       ) : (
         <div className="flex gap-2">
-          <Button size="sm" onClick={() => approve(r)} disabled={pending}>
+          <Button size="sm" onClick={() => setApproving(r)} disabled={pending}>
             {busy === r.id && pending ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
             Approve
           </Button>
@@ -136,7 +143,7 @@ export default function CashoutQueue({ rows, holdNote }: { rows: RedemptionRow[]
         </CardHeader>
         <CardContent className="px-0">
           {awaiting.length === 0 ? (
-            <p className="text-muted-foreground py-8 text-center text-sm">Nothing waiting. Nice.</p>
+            <EmptyState compact icon={Check} title="Nothing waiting" description="New cash-out requests will appear here." />
           ) : pagedAwaiting.slice.map((r) => <Row key={r.id} r={r} />)}
           <ClientPagination page={pagedAwaiting.page} pages={pagedAwaiting.pages} total={pagedAwaiting.total}
             pageSize={pagedAwaiting.pageSize} onPage={pagedAwaiting.setPage} />
@@ -151,19 +158,53 @@ export default function CashoutQueue({ rows, holdNote }: { rows: RedemptionRow[]
               Approved and counting down. Each credits its wallet automatically when the timer hits zero.
             </p>
           </div>
-          <Button size="sm" variant="outline" onClick={release} disabled={pending}>
+          <Button size="sm" variant="outline" onClick={() => setConfirmRelease(true)} disabled={pending}>
             {pending ? <Loader2 className="size-3.5 animate-spin" /> : <Zap className="size-3.5" />}
             Release due now
           </Button>
         </CardHeader>
         <CardContent className="px-0">
           {held.length === 0 ? (
-            <p className="text-muted-foreground py-8 text-center text-sm">Nothing on hold.</p>
+            <EmptyState compact icon={Clock} title="No cash-outs on hold" description="Approved requests will count down here until their payout is released." />
           ) : pagedHeld.slice.map((r) => <Row key={r.id} r={r} />)}
           <ClientPagination page={pagedHeld.page} pages={pagedHeld.pages} total={pagedHeld.total}
             pageSize={pagedHeld.pageSize} onPage={pagedHeld.setPage} />
         </CardContent>
       </Card>
+
+      <Dialog open={!!approving} onOpenChange={(open) => !open && setApproving(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Approve this cash-out?</DialogTitle>
+            <DialogDescription>
+              {approving && <>This starts the payout hold for {approving.name ?? "the customer"} ({naira(approving.valueMinor)}). The wallet is credited when the hold elapses.</>}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setApproving(null)} disabled={pending}>Cancel</Button>
+            <Button onClick={approve} disabled={pending}>
+              {pending && <Loader2 className="size-3.5 animate-spin" />} Approve cash-out
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={confirmRelease} onOpenChange={setConfirmRelease}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Release all due payouts?</DialogTitle>
+            <DialogDescription>
+              Every cash-out whose hold has elapsed will be credited now. This cannot be undone from the console.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmRelease(false)} disabled={pending}>Cancel</Button>
+            <Button onClick={release} disabled={pending}>
+              {pending && <Loader2 className="size-3.5 animate-spin" />} Release due payouts
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!rejecting} onOpenChange={(o) => !o && setRejecting(null)}>
         <DialogContent>

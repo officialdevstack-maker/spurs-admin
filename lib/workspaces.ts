@@ -16,6 +16,7 @@ export interface NavItem {
   href: string;
   icon: LucideIcon;
   perm?: string;
+  anyPerm?: string[];
 }
 
 export interface NavSection {
@@ -95,8 +96,8 @@ export const WORKSPACES: Workspace[] = [
         defaultOpen: true,
         items: [
           { label: "Cash-outs", href: "/services/survey/cashouts", icon: Wallet, perm: "money.payouts.approve" },
-          { label: "Task submissions", href: "/services/survey/review", icon: ClipboardList },
-          { label: "Gift card trades", href: "/services/giftcards/review", icon: ShieldCheck },
+          { label: "Task submissions", href: "/services/survey/review", icon: ClipboardList, perm: "ops.review" },
+          { label: "Gift card trades", href: "/services/giftcards/review", icon: ShieldCheck, perm: "ops.review" },
           { label: "Salary advances", href: "/payroll/advances", icon: HandCoins, perm: "payroll.advances" },
         ],
       },
@@ -104,11 +105,11 @@ export const WORKSPACES: Workspace[] = [
         label: "Earn",
         external: { label: "Open Earn app", href: "http://127.0.0.1:3400" },
         items: [
-          { label: "Overview", href: "/services/survey", icon: LayoutDashboard },
+          { label: "Overview", href: "/services/survey", icon: LayoutDashboard, perm: "money.read" },
           { label: "Tasks", href: "/services/survey/tasks", icon: ListPlus, perm: "ops.tasks.manage" },
           { label: "Earners", href: "/services/survey/earners", icon: Users, perm: "customers.read" },
           { label: "Anti-cheat", href: "/services/survey/risk", icon: ShieldAlert, perm: "ops.fraud.read" },
-          { label: "Networks", href: "/services/survey/networks", icon: Globe, perm: "platform.settings.manage" },
+          { label: "Networks", href: "/services/survey/networks", icon: Globe, anyPerm: ["platform.credentials.manage", "platform.settings.manage"] },
         ],
       },
       {
@@ -221,7 +222,10 @@ export function sectionFor(workspace: Workspace, pathname: string): NavSection |
 }
 
 export const visibleItems = (items: NavItem[], held: Held) =>
-  items.filter((item) => !item.perm || hasPermission(held, item.perm));
+  items.filter((item) =>
+    (!item.perm || hasPermission(held, item.perm)) &&
+    (!item.anyPerm || item.anyPerm.some((permission) => hasPermission(held, permission))),
+  );
 
 export const visibleWorkspaces = (held: Held) =>
   WORKSPACES.filter((workspace) =>

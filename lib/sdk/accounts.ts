@@ -41,6 +41,8 @@ export interface AccountUserDetail extends Omit<AccountUser, "roles" | "trust_sc
   trust: Trust;
   permissions: string[];
   connected_apps: number;
+  suspended_at?: string | null;
+  suspension_reason?: string | null;
   security_events: { type: string; label: string; ip: string | null; device: string | null; at: string | null }[];
 }
 
@@ -190,6 +192,11 @@ export const accounts = {
 
   assignRoles: (userId: number | string, roles: string[]) =>
     call<{ ok: boolean; roles: string[] }>(`/users/${userId}/roles`, { method: "POST", body: JSON.stringify({ roles }) }),
+  setSuspension: (userId: number | string, suspended: boolean, reason?: string) =>
+    call<{ ok: boolean; suspended_at: string | null; suspension_reason: string | null }>(
+      `/users/${userId}/suspension`,
+      { method: "PUT", body: JSON.stringify({ suspended, reason }) },
+    ),
 
   createRole: (input: { name: string; label: string; description?: string; is_default?: boolean; permissions: string[] }) =>
     call<{ ok: boolean; id: number }>("/roles", { method: "POST", body: JSON.stringify(input) }),

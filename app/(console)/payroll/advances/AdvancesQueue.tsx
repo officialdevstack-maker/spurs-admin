@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { HandCoins, Check, X, Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import EmptyState from "@/components/page/EmptyState";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,6 +50,7 @@ export default function AdvancesQueue({ advances }: { advances: AdvanceRow[] }) 
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [rejecting, setRejecting] = useState<AdvanceRow | null>(null);
+  const [approving, setApproving] = useState<AdvanceRow | null>(null);
   const [reason, setReason] = useState("");
 
   const act = (fn: () => Promise<{ ok: boolean; error?: string }>, after?: () => void) =>
@@ -90,7 +92,7 @@ export default function AdvancesQueue({ advances }: { advances: AdvanceRow[] }) 
         {actions ? (
           <div className="flex gap-2">
             <Button size="sm" disabled={pending}
-              onClick={() => act(() => reviewAdvanceAction(a.id, "approved"))}>
+              onClick={() => setApproving(a)}>
               {pending ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
               Approve
             </Button>
@@ -123,7 +125,7 @@ export default function AdvancesQueue({ advances }: { advances: AdvanceRow[] }) 
         </CardHeader>
         <CardContent className="px-0">
           {awaiting.length === 0 ? (
-            <p className="text-muted-foreground py-8 text-center text-sm">Nothing waiting.</p>
+            <EmptyState compact icon={Check} title="No advance requests waiting" description="New salary advance requests will appear here." />
           ) : awaiting.map((a) => <Row key={a.id} a={a} actions />)}
         </CardContent>
       </Card>
@@ -138,6 +140,26 @@ export default function AdvancesQueue({ advances }: { advances: AdvanceRow[] }) 
           </CardContent>
         </Card>
       )}
+
+      <Dialog open={!!approving} onOpenChange={(open) => !open && setApproving(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Approve this salary advance?</DialogTitle>
+            <DialogDescription>
+              {approving && <>Approve {naira(approving.amountMinor)} for {approving.staffName}. The amount will be withheld from future payroll.</>}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setApproving(null)} disabled={pending}>Cancel</Button>
+            <Button disabled={pending} onClick={() => approving && act(
+              () => reviewAdvanceAction(approving.id, "approved"),
+              () => setApproving(null),
+            )}>
+              {pending && <Loader2 className="size-3.5 animate-spin" />} Approve advance
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!rejecting} onOpenChange={(o) => !o && setRejecting(null)}>
         <DialogContent>

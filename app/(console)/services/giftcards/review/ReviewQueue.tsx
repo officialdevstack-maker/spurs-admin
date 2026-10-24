@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import EmptyState from "@/components/page/EmptyState";
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
@@ -55,17 +56,21 @@ export default function ReviewQueue({
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [rejecting, setRejecting] = useState<TradeRow | null>(null);
+  const [approving, setApproving] = useState<TradeRow | null>(null);
   const [reason, setReason] = useState("");
   const [revealed, setRevealed] = useState<{ trade: TradeRow; code: string | null } | null>(null);
   const paged = usePaged(rows, 20);
 
-  const approve = (r: TradeRow) =>
+  const approve = () => {
+    if (!approving) return;
+    const r = approving;
     start(async () => {
       setBusy(r.id); setError(null);
       const res = await approveTradeAction(r.id, r.reference);
-      setBusy(null);
+      setBusy(null); setApproving(null);
       if (!res.ok) setError(res.error);
     });
+  };
 
   const reject = () => {
     if (!rejecting) return;
@@ -100,7 +105,7 @@ export default function ReviewQueue({
         </CardHeader>
         <CardContent className="px-0">
           {rows.length === 0 ? (
-            <p className="text-muted-foreground py-8 text-center text-sm">Queue is empty.</p>
+            <EmptyState compact icon={Check} title="Queue is empty" description="New gift card trades will appear here for review." />
           ) : paged.slice.map((r) => (
             <div key={r.id} className="flex flex-wrap items-center gap-3 border-b px-5 py-3.5 last:border-0">
               <div className="min-w-0 flex-1">
@@ -146,7 +151,7 @@ export default function ReviewQueue({
                   </Button>
                 )}
                 {canApprove && (
-                  <Button size="sm" onClick={() => approve(r)} disabled={pending}>
+                  <Button size="sm" onClick={() => setApproving(r)} disabled={pending}>
                     {busy === r.id && pending ? <Loader2 className="size-3.5 animate-spin" /> : <Check className="size-3.5" />}
                     Approve
                   </Button>
@@ -161,6 +166,23 @@ export default function ReviewQueue({
             pageSize={paged.pageSize} onPage={paged.setPage} />
         </CardContent>
       </Card>
+
+      <Dialog open={!!approving} onOpenChange={(open) => !open && setApproving(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Approve this gift card trade?</DialogTitle>
+            <DialogDescription>
+              {approving && <>Queue a {naira(approving.quotedMinor)} payout for {approving.name ?? approving.userId}. The payout will be processed after approval.</>}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setApproving(null)} disabled={pending}>Cancel</Button>
+            <Button onClick={approve} disabled={pending}>
+              {pending && <Loader2 className="size-3.5 animate-spin" />} Approve trade
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={!!revealed} onOpenChange={(o) => !o && setRevealed(null)}>
         <DialogContent>

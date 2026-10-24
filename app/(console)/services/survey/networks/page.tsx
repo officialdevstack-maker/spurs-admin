@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { resolveConfig } from "@/lib/credentials";
-import { requirePermission } from "@/lib/auth";
+import { can } from "@/lib/auth";
+import { redirect } from "next/navigation";
 import { survey } from "@/lib/sdk/survey";
 import { saveNetworkAction, saveEconomicsAction } from "./actions";
 
@@ -36,7 +37,11 @@ const NETWORKS = [
 const APP_URL = process.env.SURVEY_PUBLIC_URL ?? "http://127.0.0.1:3400";
 
 export default async function Networks() {
-  await requirePermission("platform.settings.manage");
+  const [canManageCredentials, canManageSettings] = await Promise.all([
+    can("platform.credentials.manage"),
+    can("platform.settings.manage"),
+  ]);
+  if (!canManageCredentials && !canManageSettings) redirect("/?error=forbidden");
   const [config, revenue] = await Promise.all([resolveConfig("survey"), survey.revenue(30)]);
 
   const revenueShare = config.SURVEY_REVENUE_SHARE ?? "0.6";
@@ -48,7 +53,7 @@ export default async function Networks() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      {canManageSettings && <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <TrendingUp className="size-4" /> Economics
@@ -87,7 +92,7 @@ export default async function Networks() {
             </div>
           </form>
         </CardContent>
-      </Card>
+      </Card>}
 
       <div className="text-muted-foreground flex items-start gap-2 text-sm">
         <EyeOff className="mt-0.5 size-4 shrink-0" />
@@ -129,7 +134,7 @@ export default async function Networks() {
                 </div>
               </div>
 
-              <form action={saveNetworkAction} className="grid gap-4 sm:grid-cols-2">
+              {canManageCredentials ? <form action={saveNetworkAction} className="grid gap-4 sm:grid-cols-2">
                 <input type="hidden" name="id" value={net.id} />
 
                 <div className="space-y-1.5">
@@ -157,7 +162,7 @@ export default async function Networks() {
                   </a>
                   <Button type="submit">Save</Button>
                 </div>
-              </form>
+              </form> : <p className="text-muted-foreground text-sm">Credential management permission is required to edit this network.</p>}
 
               {rev && (
                 <div className="text-muted-foreground grid gap-2 border-t pt-3 text-sm sm:grid-cols-4">

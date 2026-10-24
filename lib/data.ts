@@ -107,25 +107,102 @@ export interface UserDetail {
   projects: { id: string; name: string; slug: string; region: string; createdAt: string }[];
   transactions: TxnRow[];
   payments: PaymentRow[];
+  earnActivity: CustomerActivity[];
+  giftcardActivity: CustomerActivity[];
+  arenaActivity: CustomerActivity[];
+  serviceErrors: string[];
+}
+
+export interface CustomerActivity {
+  id: string;
+  label: string;
+  detail: string;
+  status: string;
+  amountMinor: string | null;
+  createdAt: string | null;
 }
 
 export async function getUserDetail(id: string): Promise<UserDetail | null> {
   const [u] = await sql`select id, name, email, created_at from spurs.users where id = ${id}`;
   if (!u) return null;
-  const [wallets, va, merchant, projects, txns, payments] = await Promise.all([
-    sql`select asset, balance, created_at from wallet.accounts where user_id = ${id} order by asset`,
-    sql`select bank_name, account_number, account_name, currency from wallet.virtual_accounts where user_id = ${id} limit 1`,
-    sql`select business_name, email, webhook_url, created_at from pay.merchants where id = ${id} limit 1`,
-    sql`select id, name, slug, region, created_at from spurs.projects where owner_id = ${id} order by created_at desc`,
-    sql`select reference, user_id, asset, direction, amount, source, created_at
-        from wallet.transactions where user_id = ${id} order by created_at desc limit 12`,
-    u.email
-      ? sql`select p.reference, p.mode, p.amount, p.currency, p.status, p.method, p.customer_email,
-             m.business_name business, p.created_at
-             from pay.payments p left join pay.merchants m on m.id = p.merchant_id
-             where p.customer_email = ${u.email} order by p.created_at desc limit 12`
-      : Promise.resolve([] as Array<Record<string, string>>),
-  ]);
+  const serviceErrors: string[] = [];
+  const [walletResult, payResult, projectsResult, earnResult, giftcardsResult, arenaResult] =
+    await Promise.allSettled([
+      Promise.all([
+        sql`select asset, balance, created_at from wallet.accounts where user_id = ${id} order by asset`,
+        sql`select bank_name, account_number, account_name, currency from wallet.virtual_accounts where user_id = ${id} limit 1`,
+        sql`select reference, user_id, asset, direction, amount, source, created_at
+            from wallet.transactions where user_id = ${id} order by created_at desc limit 12`,
+      ]),
+      Promise.all([
+        sql`select business_name, email, webhook_url, created_at from pay.merchants where id = ${id} limit 1`,
+        u.email
+          ? sql`select p.reference, p.mode, p.amount, p.currency, p.status, p.method, p.customer_email,
+                 m.business_name business, p.created_at
+                 from pay.payments p left join pay.merchants m on m.id = p.merchant_id
+                 where p.customer_email = ${u.email} order by p.created_at desc limit 12`
+          : Promise.resolve([] as Array<Record<string, string>>),
+      ]),
+      sql`select id, name, slug, region, created_at from spurs.projects where owner_id = ${id} order by created_at desc`,
+      sql`select id::text, 'Cash-out' as label, reference as detail, status,
+                 value_minor::text as amount_minor, created_at
+          from survey.redemptions where user_id = ${id}
+          union all
+          select id::text, 'Task submission' as label, task_id::text as detail, status,
+                 null::text as amount_minor, submitted_at as created_at
+          from survey.submissions where user_id = ${id}
+          order by created_at desc limit 12`,
+      sql`select t.id::text, b.name as label, t.reference as detail, t.status,
+                 coalesce(t.payout_minor, t.quoted_minor)::text as amount_minor, t.created_at
+          from giftcards.trades t
+          left join giftcards.brands b on b.id = t.brand_id
+          where t.user_id = ${id}
+          order by t.created_at desc limit 12`,
+      sql`select a.id::text, a.label, a.detail, a.status, a.amount_minor, a.created_at
+          from (
+            select c.id, '1v1 challenge'::text as label, c.title as detail, c.status,
+                   c.stake_minor::text as amount_minor, c.created_at
+            from esports.challenges c where c.creator_id = ${id} or c.opponent_id = ${id}
+            union all
+            select b.id, 'Arena bet'::text as label, m.home_name || ' vs ' || m.away_name as detail,
+                   b.status, b.stake_minor::text as amount_minor, b.created_at
+            from esports.bets b join esports.matches m on m.id = b.match_id where b.user_id = ${id}
+            union all
+            select o.id, 'Marketplace order'::text as label, l.title as detail, o.status,
+                   o.price_minor::text as amount_minor, o.created_at
+            from esports.orders o join esports.listings l on l.id = o.listing_id
+            where o.buyer_id = ${id} or o.seller_id = ${id}
+            union all
+            select e.id, 'Tournament entry'::text as label, t.name as detail, t.status,
+                   t.entry_minor::text as amount_minor, e.joined_at as created_at
+            from esports.tournament_entries e join esports.tournaments t on t.id = e.tournament_id
+            where e.user_id = ${id}
+          ) a
+          order by a.created_at desc limit 12`,
+    ]);
+
+  const recordServiceFailure = (service: string, reason: unknown) => {
+    console.error(`Customer 360 could not load ${service} data`, reason);
+    serviceErrors.push(service);
+  };
+
+  if (walletResult.status === "rejected") recordServiceFailure("Wallet", walletResult.reason);
+  if (payResult.status === "rejected") recordServiceFailure("Pay", payResult.reason);
+  if (projectsResult.status === "rejected") recordServiceFailure("Projects", projectsResult.reason);
+  if (earnResult.status === "rejected") recordServiceFailure("Earn", earnResult.reason);
+  if (giftcardsResult.status === "rejected") recordServiceFailure("Gift Cards", giftcardsResult.reason);
+  if (arenaResult.status === "rejected") recordServiceFailure("Arena", arenaResult.reason);
+
+  const wallets = walletResult.status === "fulfilled" ? walletResult.value[0] : [];
+  const va = walletResult.status === "fulfilled" ? walletResult.value[1] : [];
+  const txns = walletResult.status === "fulfilled" ? walletResult.value[2] : [];
+  const merchant = payResult.status === "fulfilled" ? payResult.value[0] : [];
+  const payments = payResult.status === "fulfilled" ? payResult.value[1] : [];
+  const projects = projectsResult.status === "fulfilled" ? projectsResult.value : [];
+  const earnActivity = earnResult.status === "fulfilled" ? earnResult.value : [];
+  const giftcardActivity = giftcardsResult.status === "fulfilled" ? giftcardsResult.value : [];
+  const arenaActivity = arenaResult.status === "fulfilled" ? arenaResult.value : [];
+
   return {
     id: u.id, name: u.name, email: u.email, createdAt: u.created_at,
     wallets: wallets.map((w) => ({ asset: w.asset, balance: String(w.balance), createdAt: w.created_at })),
@@ -145,6 +222,19 @@ export async function getUserDetail(id: string): Promise<UserDetail | null> {
       status: r.status, method: r.method, customerEmail: r.customer_email,
       business: r.business, createdAt: r.created_at,
     })),
+    earnActivity: earnActivity.map((r) => ({
+      id: r.id, label: r.label, detail: r.detail, status: r.status,
+      amountMinor: r.amount_minor, createdAt: r.created_at,
+    })),
+    giftcardActivity: giftcardActivity.map((r) => ({
+      id: r.id, label: r.label ?? "Gift card trade", detail: r.detail, status: r.status,
+      amountMinor: r.amount_minor, createdAt: r.created_at,
+    })),
+    arenaActivity: arenaActivity.map((r) => ({
+      id: r.id, label: r.label, detail: r.detail, status: r.status,
+      amountMinor: r.amount_minor, createdAt: r.created_at,
+    })),
+    serviceErrors,
   };
 }
 

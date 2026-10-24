@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import EmptyState from "@/components/page/EmptyState";
 import type { KycRow } from "@/lib/sdk/accounts";
 import { reviewKycAction } from "./actions";
 
@@ -36,10 +37,8 @@ export default function KycQueue({ canReview, rows }: { canReview: boolean; rows
   if (rows.length === 0) {
     return (
       <Card>
-        <CardContent className="flex flex-col items-center py-14 text-center">
-          <span className="bg-muted grid size-12 place-items-center rounded-full"><ShieldCheck className="text-muted-foreground size-5" /></span>
-          <p className="mt-3 text-sm font-medium">Nothing to review</p>
-          <p className="text-muted-foreground mt-1 max-w-xs text-sm">KYC submissions land here for approval.</p>
+        <CardContent>
+        <EmptyState icon={ShieldCheck} title="Nothing to review" description="KYC submissions land here for approval." />
         </CardContent>
       </Card>
     );
@@ -58,7 +57,7 @@ export default function KycQueue({ canReview, rows }: { canReview: boolean; rows
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     {k.user ? (
-                      <Link href={`/services/accounts/users/${k.user.id}`} className="font-medium hover:underline">{k.user.name}</Link>
+                      <Link href={`/users/${k.user.id}`} className="font-medium hover:underline">{k.user.name}</Link>
                     ) : <span className="font-medium">Unknown user</span>}
                     <Badge variant={s.variant} className="gap-1"><Icon className="size-3" />{k.status}</Badge>
                     {k.level > 0 && <Badge variant="outline">Tier {k.level}</Badge>}

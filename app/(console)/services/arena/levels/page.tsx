@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Plus } from "lucide-react";
-import { requirePermission } from "@/lib/auth";
+import { can, requirePermission } from "@/lib/auth";
 import { overview } from "@/lib/arena";
 import { seedLevelsAction, upsertLevelAction, deleteLevelAction } from "../actions";
 
@@ -11,7 +11,10 @@ const btn = "bg-primary text-primary-foreground rounded-lg px-4 py-2 text-sm fon
 const naira = (kobo: number) => Math.round(kobo / 100);
 
 export default async function ArenaLevels() {
-  await requirePermission("money.adjust");
+  const [, canSeed] = await Promise.all([
+    requirePermission("money.adjust"),
+    can("platform.settings.manage"),
+  ]);
   const data = await overview();
   const levels = [...(data?.levels ?? [])].sort((a, b) => a.level - b.level);
 
@@ -61,7 +64,7 @@ export default async function ArenaLevels() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-3">
           <CardTitle className="text-base">Ladder ({levels.length})</CardTitle>
-          {levels.length === 0 && (
+          {levels.length === 0 && canSeed && (
             <form action={seedLevelsAction}>
               <button type="submit" className="rounded-lg border px-3 py-1.5 text-sm hover:bg-muted">Seed default ladder</button>
             </form>

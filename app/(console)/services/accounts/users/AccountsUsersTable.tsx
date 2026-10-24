@@ -37,7 +37,7 @@ const columns: ColumnDef<AccountUser>[] = [
     accessorFn: (u) => `${u.name} ${u.email}`,
     header: ({ column }) => <SortableHeader column={column} title="User" />,
     cell: ({ row }) => (
-      <Link href={`/services/accounts/users/${row.original.id}`} className="group block">
+      <Link href={`/users/${row.original.id}`} className="group block">
         <div className="font-medium group-hover:underline">{row.original.name}</div>
         <div className="text-muted-foreground text-xs">{row.original.email}</div>
       </Link>
@@ -92,7 +92,7 @@ const columns: ColumnDef<AccountUser>[] = [
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem asChild><Link href={`/services/accounts/users/${u.id}`}><User className="size-3.5" /> View & manage roles</Link></DropdownMenuItem>
+            <DropdownMenuItem asChild><Link href={`/users/${u.id}`}><User className="size-3.5" /> View customer</Link></DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => navigator.clipboard.writeText(String(u.id))}><Copy className="size-3.5" /> Copy user ID</DropdownMenuItem>
             <DropdownMenuItem onClick={() => navigator.clipboard.writeText(u.email)}><Copy className="size-3.5" /> Copy email</DropdownMenuItem>

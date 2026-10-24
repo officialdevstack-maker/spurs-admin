@@ -1,9 +1,11 @@
 import { Clock, ShieldCheck, ShieldAlert } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Pagination from "@/components/Pagination";
 import { can, requirePermission } from "@/lib/auth";
 import { accounts } from "@/lib/sdk/accounts";
 import KycQueue from "./KycQueue";
+import PageHeader from "@/components/page/PageHeader";
+import StatCard from "@/components/page/StatCard";
+import StatGrid from "@/components/page/StatGrid";
 
 export const dynamic = "force-dynamic";
 
@@ -28,21 +30,22 @@ export default async function KycPage({ searchParams }: { searchParams: Promise<
 
   return (
     <div className="space-y-6">
-      <p className="text-muted-foreground text-sm">
-        Identity verification requests. Approving here sets the account&apos;s tier, which rides the Spurs session to Wallet, Pay and Cloud. A reused BVN/NIN is flagged automatically.
-      </p>
+      <PageHeader
+        title="Identity verification"
+        description="Review identity checks, set account tiers, and watch for reused BVN or NIN details."
+      />
 
-      <div className="grid gap-4 sm:grid-cols-3">
-        {tiles.map((t) => (
-          <Card key={t.label}>
-            <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-muted-foreground text-sm font-medium">{t.label}</CardTitle>
-              <span className="bg-primary/10 text-primary grid size-8 place-items-center rounded-lg"><t.icon className="size-4" /></span>
-            </CardHeader>
-            <CardContent><div className="text-2xl font-bold tracking-tight">{t.value.toLocaleString()}</div></CardContent>
-          </Card>
+      <StatGrid cols={3}>
+        {tiles.map((tile) => (
+          <StatCard
+            key={tile.label}
+            label={tile.label}
+            value={tile.value}
+            icon={tile.icon}
+            tone={tile.label === "Awaiting review" ? tile.value ? "warn" : "good" : "default"}
+          />
         ))}
-      </div>
+      </StatGrid>
 
       <KycQueue canReview={canReview} rows={rows} />
       <Pagination page={page} pageSize={PAGE_SIZE} total={kyc.length}
