@@ -29,7 +29,7 @@ pnpm-debug.log*
 # local env files (keep your secrets safe)
 .env
 .env*.local
-!.env.production
+.env.production
 .env.development
 
 # Vercel
