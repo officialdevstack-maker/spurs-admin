@@ -74,6 +74,7 @@ Mark items as they land.
 
 **Phase 5: page-by-page restyle** (one per pass, in this order)
 - [x] Queues: cash-outs, task submissions, gift card trades, KYC, salary advances
+- [x] Shared loading skeleton and service-unavailable boundaries; queue empty states, summaries, mobile layout, and guarded money/standing confirmations
 - [ ] Money pages
 - [ ] Product pages
 - [ ] Settings last
@@ -101,11 +102,12 @@ Before touching it, list: (a) what data it reads, (b) every action it can take, 
 - [ ] If payroll was touched: `npx tsx lib/payroll/engine.verify.mts` passes
 - [ ] The status checklist above is updated
 
-## Open questions (don't guess: ask the owner)
-1. **Linking identities for Customer 360.** Accounts uses integer user ids (`AccountUser.id: number`); the platform DB uses text ids (`spurs.users.id`). What links them: the email, or a shared `sub`? Decide before Phase 3.
-2. Should staff notes be visible to every console user or gated behind `customers.read`?
-3. Should the Inbox be the landing page for all roles, or only roles with at least one queue permission?
-4. Do the "Open X app" links need production URLs? They are hard-coded to `127.0.0.1` ports today.
+## Resolved decisions
+1. **Customer identity:** link Accounts integer IDs to platform `spurs.users.id` through the shared ID / `sub`.
+2. **Staff notes:** visible only to console users with `customers.read`.
+3. **Inbox landing:** only admins with at least one queue permission land on `/inbox` after login.
+4. **Production product URLs:** deferred; existing "Open X app" links are unchanged.
+5. **Account suspension:** block future Accounts sign-ins and revoke Accounts API tokens. Sessions already issued by other apps may remain valid until expiry.
 
 ## Prompt template (paste into the agent for each task)
 ```

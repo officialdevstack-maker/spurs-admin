@@ -11,7 +11,7 @@ export default function ServiceUnavailable({
   reset: () => void;
 }) {
   return (
-    <div className="mx-auto max-w-2xl py-10">
+    <div role="alert" className="mx-auto max-w-2xl py-10">
       <Notice tone="danger" title={`Couldn't reach ${service}.`}>
         Check that the service is running and its admin connection is configured correctly.
       </Notice>

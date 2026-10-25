@@ -29,7 +29,7 @@ function fmt(minor: string, asset: string) {
   return (neg ? "-" : "") + (SYM[asset] ?? "") + whole + (d ? "." + abs.slice(-d) : "");
 }
 const naira = (kobo: number | string, cur = "NGN") => {
-  const value = BigInt(kobo);
+  const value = typeof kobo === "number" ? BigInt(Math.trunc(kobo)) : BigInt(kobo);
   const digits = (value < 0 ? -value : value).toString().padStart(3, "0");
   return `${value < 0 ? "-" : ""}${cur === "NGN" ? "₦" : `${cur} `}${digits.slice(0, -2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}.${digits.slice(-2)}`;
 };
@@ -72,7 +72,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
   if (platformResult.status === "fulfilled" && !platformUser && accountResult.status === "fulfilled" && !account) notFound();
 
   const u: UserDetail = platformUser ?? {
-    id, name: account?.name ?? null, email: account?.email ?? null, createdAt: account?.created_at,
+    id, name: account?.name ?? null, email: account?.email ?? null, createdAt: account?.created_at ?? null,
     wallets: [], virtualAccount: null, merchant: null, projects: [], transactions: [], payments: [],
     earnActivity: [], giftcardActivity: [], arenaActivity: [], serviceErrors: [],
   };
