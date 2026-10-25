@@ -1,12 +1,12 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/auth";
+import { assertPermission } from "@/lib/auth";
 import { logAction } from "@/lib/audit";
 import { setSubscription } from "@/lib/subscriptions";
 
 export async function createSubscription(formData: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.ai.manage");
   const userId = String(formData.get("userId") ?? "").trim();
   const plan = String(formData.get("plan") ?? "free").trim();
   const active = String(formData.get("active") ?? "") === "true";

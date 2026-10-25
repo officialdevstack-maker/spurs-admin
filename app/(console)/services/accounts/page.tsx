@@ -86,7 +86,7 @@ export default async function AccountsOverview() {
         <Card>
           <CardHeader className="flex-row items-center justify-between">
             <CardTitle className="text-base">Newest accounts</CardTitle>
-            <Link href="/services/accounts/users" className="text-primary text-sm font-medium hover:underline">All users</Link>
+            <Link href="/users" className="text-primary text-sm font-medium hover:underline">All customers</Link>
           </CardHeader>
           <CardContent className="px-0">
             <div className="divide-y">

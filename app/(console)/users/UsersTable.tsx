@@ -12,14 +12,17 @@ import {
 import { DataTable, SortableHeader } from "@/components/data-table/data-table";
 import { downloadCsv } from "@/lib/csv";
 import type { UserRow } from "@/lib/data";
+import type { AccountUser } from "@/lib/sdk/accounts";
 
-const includesSome: FilterFn<UserRow> = (row, id, val: string[]) =>
+type CustomerDirectoryRow = UserRow & { account?: AccountUser };
+
+const includesSome: FilterFn<CustomerDirectoryRow> = (row, id, val: string[]) =>
   !val?.length || val.includes(String(row.getValue(id)));
 
-const columns: ColumnDef<UserRow>[] = [
+const columns: ColumnDef<CustomerDirectoryRow>[] = [
   {
     id: "user",
-    accessorFn: (u) => `${u.name ?? ""} ${u.email ?? ""}`,
+    accessorFn: (u) => `${u.name ?? ""} ${u.email ?? ""} ${u.account?.name ?? ""} ${u.account?.email ?? ""}`,
     header: ({ column }) => <SortableHeader column={column} title="User" />,
     cell: ({ row }) => (
       <Link href={`/users/${row.original.id}`} className="group block">
@@ -33,6 +36,44 @@ const columns: ColumnDef<UserRow>[] = [
     accessorKey: "id",
     header: "ID",
     cell: ({ row }) => <span className="text-muted-foreground font-mono text-xs">{row.original.id}</span>,
+  },
+  {
+    id: "verified",
+    accessorFn: (u) => u.account ? (u.account.email_verified ? "Verified" : "Unverified") : "No Accounts profile",
+    header: "Email verification",
+    filterFn: includesSome,
+    cell: ({ row }) => {
+      const account = row.original.account;
+      return account
+        ? account.email_verified
+          ? <Badge variant="success">Verified</Badge>
+          : <Badge variant="warning">Unverified</Badge>
+        : <span className="text-muted-foreground">—</span>;
+    },
+  },
+  {
+    id: "roles",
+    accessorFn: (u) => u.account?.roles.map((role) => role.name).join(" ") ?? "",
+    header: "Accounts roles",
+    filterFn: (row, id, val: string[]) =>
+      !val?.length || val.some((role) => row.original.account?.roles.some((item) => item.name === role)),
+    cell: ({ row }) => {
+      const roles = row.original.account?.roles ?? [];
+      return roles.length
+        ? <div className="flex flex-wrap gap-1">{roles.map((role) => <Badge key={role.name} variant={role.name === "superadmin" ? "default" : "secondary"}>{role.label}</Badge>)}</div>
+        : <span className="text-muted-foreground">—</span>;
+    },
+  },
+  {
+    id: "trust",
+    accessorFn: (u) => u.account?.trust_score ?? -1,
+    header: ({ column }) => <SortableHeader column={column} title="Trust" />,
+    cell: ({ row }) => {
+      const score = row.original.account?.trust_score;
+      if (score == null) return <span className="text-muted-foreground">—</span>;
+      const variant = score >= 65 ? "success" : score >= 45 ? "warning" : "destructive";
+      return <Badge variant={variant}>{score}</Badge>;
+    },
   },
   {
     id: "wallet",
@@ -82,21 +123,35 @@ const columns: ColumnDef<UserRow>[] = [
   },
 ];
 
-export default function UsersTable({ data }: { data: UserRow[] }) {
+export default function UsersTable({
+  data,
+  roles,
+}: {
+  data: CustomerDirectoryRow[];
+  roles: { label: string; value: string }[];
+}) {
   return (
     <DataTable
       columns={columns}
       data={data}
-      searchPlaceholder="Search users by name, email, ID…"
+      searchPlaceholder="Search customers by name, email, or ID…"
       filters={[
+        { columnId: "verified", title: "Email verification", options: [
+          { label: "Verified", value: "Verified" },
+          { label: "Unverified", value: "Unverified" },
+          { label: "No Accounts profile", value: "No Accounts profile" },
+        ] },
+        { columnId: "roles", title: "Accounts role", options: roles },
         { columnId: "wallet", title: "Wallet", options: [{ label: "Has wallet", value: "Yes" }, { label: "No wallet", value: "No" }] },
         { columnId: "merchant", title: "Merchant", options: [{ label: "Merchant", value: "Yes" }, { label: "Not merchant", value: "No" }] },
       ]}
       bulkActions={[
         {
           label: "Export CSV", icon: Download,
-          onClick: (rows) => downloadCsv("users.csv", rows.map((u) => ({
-            id: u.id, name: u.name, email: u.email, hasWallet: u.hasWallet, isMerchant: u.isMerchant, projects: u.projects,
+          onClick: (rows) => downloadCsv("customers.csv", rows.map((u) => ({
+            id: u.id, name: u.name, email: u.email, emailVerified: u.account?.email_verified ?? null,
+            roles: u.account?.roles.map((role) => role.label).join(", ") ?? "",
+            trustScore: u.account?.trust_score ?? null, hasWallet: u.hasWallet, isMerchant: u.isMerchant, projects: u.projects,
           }))),
         },
       ]}

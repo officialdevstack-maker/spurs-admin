@@ -1,11 +1,11 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { requireAdmin, requireSuperadmin } from "@/lib/auth";
+import { assertPermission, requireSuperadmin } from "@/lib/auth";
 import { upsertCredential, deleteCredential, revealCredential } from "@/lib/credentials";
 import { logAction } from "@/lib/audit";
 
 export async function saveCredentialAction(formData: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.credentials.manage");
   const appId = String(formData.get("appId") ?? "global");
   const key = String(formData.get("key") ?? "").trim();
   const value = String(formData.get("value") ?? "");
@@ -27,7 +27,7 @@ export async function deleteCredentialAction(id: string) {
 }
 
 export async function revealCredentialAction(id: string): Promise<string | null> {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.credentials.manage");
   const value = await revealCredential(id);
   await logAction(admin, "credential.reveal", id);
   return value;

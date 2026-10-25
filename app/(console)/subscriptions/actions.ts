@@ -2,7 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/auth";
+import { assertPermission } from "@/lib/auth";
 import { createPlan, updatePlan, deletePlan, getPlan, type PlanInput } from "@/lib/plans";
 import { setSubscription } from "@/lib/subscriptions";
 import { logAction } from "@/lib/audit";
@@ -24,7 +24,7 @@ function parse(formData: FormData): PlanInput {
 }
 
 export async function createPlanAction(formData: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.settings.manage");
   const p = parse(formData);
   if (!p.code || !p.name) {
     redirect("/subscriptions/new?error=" + encodeURIComponent("Code and name are required."));
@@ -35,7 +35,7 @@ export async function createPlanAction(formData: FormData) {
 }
 
 export async function updatePlanAction(formData: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.settings.manage");
   const id = String(formData.get("id") ?? "");
   const p = parse(formData);
   if (!id || !p.name) {
@@ -51,7 +51,7 @@ export async function updatePlanAction(formData: FormData) {
 }
 
 export async function deletePlanAction(formData: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.settings.manage");
   const id = String(formData.get("id") ?? "");
   if (id) {
     await deletePlan(id);
@@ -63,7 +63,7 @@ export async function deletePlanAction(formData: FormData) {
 
 // Manually grant/change a user's plan (a comp, migration, or fix) — no payment.
 export async function grantSubscriptionAction(formData: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.settings.manage");
   const appId = String(formData.get("appId") ?? "aitrader").trim() || "aitrader";
   const userId = String(formData.get("userId") ?? "").trim();
   const planCode = String(formData.get("plan") ?? "").trim();

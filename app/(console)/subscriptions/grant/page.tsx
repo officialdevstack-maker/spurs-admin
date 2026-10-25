@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { listPlans } from "@/lib/plans";
 import { db, apps as appsTable } from "@/lib/db";
 import { grantSubscriptionAction } from "../actions";
@@ -10,7 +10,7 @@ const inp = "h-10 w-full rounded-lg border bg-transparent px-3 text-sm outline-n
 const naira = (m: number) => "₦" + Math.round(m / 100).toLocaleString("en-NG");
 
 export default async function GrantPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  await requireAdmin();
+  await requirePermission("platform.settings.manage");
   const [{ error }, plans, apps] = await Promise.all([
     searchParams,
     listPlans(),

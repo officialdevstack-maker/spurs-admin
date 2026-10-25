@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { aitrader } from "@/lib/aitrader";
 import { savePlatformSettings } from "./actions";
 import { PaperDataProvider } from "./PaperDataProvider";
@@ -10,7 +10,7 @@ const inp =
   "h-10 w-full rounded-lg border bg-transparent px-3 text-sm outline-none focus:border-primary";
 
 export default async function AiTraderSettings() {
-  await requireAdmin();
+  await requirePermission("platform.ai.manage");
   const p = await aitrader.platform();
 
   return (

@@ -1,7 +1,7 @@
 import { Sparkles, Users, BadgeCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { listSubscriptions } from "@/lib/subscriptions";
 import { listPlans } from "@/lib/plans";
 
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 const naira = (minor: number) => "₦" + Math.round(minor / 100).toLocaleString("en-NG");
 
 export default async function SubscribersPage({ searchParams }: { searchParams: Promise<{ granted?: string }> }) {
-  await requireAdmin();
+  await requirePermission("platform.settings.manage");
   const [{ granted }, subs, plans] = await Promise.all([searchParams, listSubscriptions(), listPlans()]);
   const price = new Map(plans.map((p) => [`${p.appId}:${p.code}`, p.priceMinorNgn] as const));
 

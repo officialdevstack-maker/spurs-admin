@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { listPlans } from "@/lib/plans";
 import { deletePlanAction } from "./actions";
 
@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 const naira = (minor: number) => "₦" + Math.round(minor / 100).toLocaleString("en-NG");
 
 export default async function PlansPage({ searchParams }: { searchParams: Promise<{ saved?: string; deleted?: string }> }) {
-  await requireAdmin();
+  await requirePermission("platform.settings.manage");
   const [{ saved, deleted }, plans] = await Promise.all([searchParams, listPlans()]);
 
   return (

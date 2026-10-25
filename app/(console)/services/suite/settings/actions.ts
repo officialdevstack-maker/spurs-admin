@@ -1,13 +1,13 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/auth";
+import { assertPermission } from "@/lib/auth";
 import { logAction } from "@/lib/audit";
 import { upsertCredential } from "@/lib/credentials";
 import { SUITE_SETTING_TYPES, SUITE_SECRET_KEYS } from "@/lib/suite-settings";
 
 export async function saveSuiteSettingsAction(values: Record<string, boolean | number | string>) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.settings.manage");
   try {
     for (const [key, value] of Object.entries(values)) {
       if (!(key in SUITE_SETTING_TYPES)) continue;

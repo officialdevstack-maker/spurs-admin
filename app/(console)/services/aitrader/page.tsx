@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Users, Activity, Wallet, ShieldCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { aitrader } from "@/lib/aitrader";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 const usd = (n: number) => "$" + n.toLocaleString(undefined, { maximumFractionDigits: 2 });
 
 export default async function AiTraderOverview() {
-  await requireAdmin();
+  await requirePermission("platform.ai.read");
   const [users, platform] = await Promise.all([aitrader.users(), aitrader.platform()]);
   const offline = platform === null && users.length === 0;
 

@@ -1,10 +1,10 @@
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { listCredentials } from "@/lib/credentials";
 import { db, apps as appsTable } from "@/lib/db";
 import CredentialsManager from "./CredentialsManager";
 
 export default async function CredentialsPage() {
-  const admin = await requireAdmin();
+  const admin = await requirePermission("platform.credentials.manage");
   const [creds, apps] = await Promise.all([
     listCredentials(),
     db.select({ id: appsTable.id, name: appsTable.name }).from(appsTable),

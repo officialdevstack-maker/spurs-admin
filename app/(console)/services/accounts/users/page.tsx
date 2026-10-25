@@ -1,18 +1,7 @@
-import { accounts } from "@/lib/sdk/accounts";
-import { requirePermission } from "@/lib/auth";
-import AccountsUsersTable from "./AccountsUsersTable";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
 export default async function AccountsUsersPage() {
-  await requirePermission("customers.read");
-  const [users, roles] = await Promise.all([accounts.users(), accounts.roles()]);
-  const roleOptions = roles.map((r) => ({ label: r.label, value: r.name }));
-
-  return (
-    <div className="space-y-4">
-      <p className="text-muted-foreground text-sm">{users.length} accounts. Roles assigned here take effect across every Spurs Cloud service.</p>
-      <AccountsUsersTable data={users} roleOptions={roleOptions} />
-    </div>
-  );
+  redirect("/users");
 }

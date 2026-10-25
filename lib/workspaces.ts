@@ -69,7 +69,6 @@ export const WORKSPACES: Workspace[] = [
         items: [
           { label: "Customers", href: "/users", icon: Users, perm: "customers.read" },
           { label: "Identity overview", href: "/services/accounts", icon: Fingerprint, perm: "customers.read" },
-          { label: "Account holders", href: "/services/accounts/users", icon: Users, perm: "customers.read" },
           { label: "KYC", href: "/services/accounts/kyc", icon: BadgeCheck, perm: "customers.read" },
           { label: "Fraud & risk", href: "/services/accounts/fraud", icon: ShieldAlert, perm: "customers.read" },
           { label: "Security log", href: "/services/accounts/security", icon: Activity, perm: "customers.read" },

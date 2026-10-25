@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { requireAdmin } from "@/lib/auth";
+import { assertPermission } from "@/lib/auth";
 import { upsertCredential } from "@/lib/credentials";
 import { logAction } from "@/lib/audit";
 
@@ -26,7 +26,7 @@ const FIELDS = [
 ];
 
 export async function savePlatformSettings(formData: FormData) {
-  const admin = await requireAdmin();
+  const admin = await assertPermission("platform.ai.manage");
   const changed: string[] = [];
 
   // The provider API key is an actual secret and is left blank to keep the

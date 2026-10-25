@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { aitrader } from "@/lib/aitrader";
 
 export const dynamic = "force-dynamic";
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 const usd = (n: number) => "$" + n.toLocaleString(undefined, { maximumFractionDigits: 2 });
 
 export default async function AiTraderUsers() {
-  await requireAdmin();
+  await requirePermission("platform.ai.read");
   const users = await aitrader.users();
 
   return (

@@ -1,13 +1,13 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { requireAdmin } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { listSubscriptions } from "@/lib/subscriptions";
 import { createSubscription } from "./actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function AiTraderSubscriptionsPage() {
-  await requireAdmin();
+  await requirePermission("platform.ai.read");
   const subs = await listSubscriptions("aitrader");
 
   return (
