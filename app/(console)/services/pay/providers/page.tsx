@@ -1,5 +1,6 @@
 import { EyeOff } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import PageHeader from "@/components/page/PageHeader";
 import { can, requirePermission } from "@/lib/auth";
 import { resolveConfig } from "@/lib/credentials";
 import { providerStates } from "@/lib/pay-providers";
@@ -18,6 +19,7 @@ export default async function PayProviders() {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Pay providers" description="Configure the processor and credentials used for real payment processing." />
       <p className="text-muted-foreground text-sm">
         The real gateway behind Spurs Pay. Choose the live processor, edit its
         credentials and deposit fee, and generate the webhook URL — all served

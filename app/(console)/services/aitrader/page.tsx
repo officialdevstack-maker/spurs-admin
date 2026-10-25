@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Users, Activity, Wallet, ShieldCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import PageHeader from "@/components/page/PageHeader";
 import { requirePermission } from "@/lib/auth";
 import { aitrader } from "@/lib/aitrader";
 
@@ -28,6 +29,7 @@ export default async function AiTraderOverview() {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="AI Trader overview" description="Monitor trader accounts, equity, and open positions." />
       {offline && (
         <Card className="border-amber-300 dark:border-amber-900">
           <CardContent className="py-4 text-sm text-amber-700 dark:text-amber-300">

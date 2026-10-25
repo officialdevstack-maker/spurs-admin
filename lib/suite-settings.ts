@@ -1,6 +1,5 @@
 import "server-only";
-import { resolveConfig } from "@/lib/credentials";
-import type { WalletSettingType, WalletSettingValue, WalletSettingItem, WalletSettingsCatalog } from "@/lib/wallet-settings";
+import { buildSettingsCatalog, type SettingDefinition, type SettingType, type SettingsCatalog } from "@/lib/settings-catalog";
 
 /**
  * Spurs Suite's platform settings, stored in the admin config registry for app
@@ -8,8 +7,6 @@ import type { WalletSettingType, WalletSettingValue, WalletSettingItem, WalletSe
  * tune fees, currency and integrations without a redeploy. Secret keys (blank
  * keeps the current value) never round-trip to the client.
  */
-interface Def { key: string; group: string; label: string; type: WalletSettingType; default: string; help: string; secret?: boolean }
-
 const DEFAULT_INDUSTRIES = [
   "Retail", "E-commerce", "Food & drink", "Fashion & apparel", "Beauty & cosmetics",
   "Health & wellness", "Professional services", "Technology & software", "Education",
@@ -17,7 +14,7 @@ const DEFAULT_INDUSTRIES = [
   "Media & entertainment", "Finance", "Construction", "Manufacturing", "Nonprofit", "Other",
 ].join("\n");
 
-export const SUITE_SETTINGS: Def[] = [
+export const SUITE_SETTINGS: SettingDefinition[] = [
   { key: "SUITE_DEFAULT_CURRENCY", group: "General", label: "Default currency", type: "string", default: "NGN", help: "Default currency for new businesses." },
   { key: "SUITE_INDUSTRIES", group: "General", label: "Business industries", type: "text", default: DEFAULT_INDUSTRIES, help: "One per line. Shown as the industry dropdown when a business signs up." },
   { key: "SUITE_INVOICE_FEE_PERCENT", group: "Fees", label: "Invoice fee (%)", type: "string", default: "0", help: "Platform fee taken on paid invoices." },
@@ -28,30 +25,11 @@ export const SUITE_SETTINGS: Def[] = [
   { key: "INTERNAL_API_SECRET", group: "Integrations", label: "Internal API secret", type: "string", default: "", help: "Shared secret for internal Pay/Wallet calls. Blank keeps the current value.", secret: true },
 ];
 
-export type { WalletSettingsCatalog as SuiteSettingsCatalog };
+export type SuiteSettingsCatalog = SettingsCatalog;
 
-function cast(raw: string | undefined, type: WalletSettingType, def: string): WalletSettingValue {
-  const v = raw ?? def;
-  if (type === "bool") return v === "true" || v === "1" || v === "on";
-  if (type === "int") return Number(v) || 0;
-  return v;
+export async function suiteSettingsCatalog(): Promise<SuiteSettingsCatalog> {
+  return buildSettingsCatalog("suite", SUITE_SETTINGS);
 }
 
-export async function suiteSettingsCatalog(): Promise<WalletSettingsCatalog> {
-  const cfg = await resolveConfig("suite");
-  const out: WalletSettingsCatalog = {};
-  for (const d of SUITE_SETTINGS) {
-    // Never surface stored secret values to the browser.
-    const value = d.secret ? "" : cast(cfg[d.key], d.type, d.default);
-    (out[d.group] ??= []).push({
-      key: d.key, label: d.label, type: d.type,
-      value: value as WalletSettingItem["value"],
-      default: cast(undefined, d.type, d.default),
-      help: d.help,
-    });
-  }
-  return out;
-}
-
-export const SUITE_SETTING_TYPES = Object.fromEntries(SUITE_SETTINGS.map((d) => [d.key, d.type])) as Record<string, WalletSettingType>;
+export const SUITE_SETTING_TYPES = Object.fromEntries(SUITE_SETTINGS.map((d) => [d.key, d.type])) as Record<string, SettingType>;
 export const SUITE_SECRET_KEYS = new Set(SUITE_SETTINGS.filter((d) => d.secret).map((d) => d.key));

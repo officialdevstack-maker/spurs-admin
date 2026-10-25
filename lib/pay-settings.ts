@@ -1,12 +1,12 @@
 import "server-only";
-import { resolveConfig } from "@/lib/credentials";
+import { buildSettingsCatalog, type SettingDefinition, type SettingType, type SettingValue, type SettingsCatalog } from "@/lib/settings-catalog";
 
 /**
  * Pay's platform settings. Stored in the admin config registry for app "pay"
  * (the same source of truth as the processor choice) and served to Pay via the
  * config API — so they take effect once Pay reads its config from admin.
  */
-export type PaySettingType = "bool" | "int" | "string" | "text" | "methods";
+export type PaySettingType = Extract<SettingType, "bool" | "int" | "string" | "text" | "methods">;
 
 export const PAYMENT_METHOD_OPTIONS = [
   { value: "card", label: "Card" },
@@ -15,16 +15,7 @@ export const PAYMENT_METHOD_OPTIONS = [
   { value: "wallet", label: "Wallet" },
 ];
 
-interface Def {
-  key: string;
-  group: string;
-  label: string;
-  type: PaySettingType;
-  default: string;
-  help: string;
-}
-
-export const PAY_SETTINGS: Def[] = [
+export const PAY_SETTINGS: SettingDefinition<PaySettingType>[] = [
   { key: "PAY_DEFAULT_CURRENCY", group: "Payments", label: "Default currency", type: "string", default: "NGN", help: "Currency used when a charge doesn't specify one." },
   { key: "PAY_ALLOWED_METHODS", group: "Payments", label: "Enabled methods", type: "methods", default: "card,bank_transfer,ussd,wallet", help: "Payment methods offered at checkout by default." },
   { key: "PAY_CHECKOUT_TITLE", group: "Payments", label: "Checkout title", type: "string", default: "Spurs Pay", help: "Heading shown on the hosted checkout page." },
@@ -50,33 +41,12 @@ export const PAY_SETTINGS: Def[] = [
   { key: "PAY_REQUIRE_3DS", group: "Risk", label: "Require 3-D Secure", type: "bool", default: "false", help: "Force 3-D Secure authentication on card payments." },
 ];
 
-export type PaySettingValue = boolean | number | string;
-export interface PaySettingItem {
-  key: string; label: string; type: PaySettingType;
-  value: PaySettingValue; default: PaySettingValue; help: string;
-}
-export type PaySettingsCatalog = Record<string, PaySettingItem[]>;
-
-function cast(raw: string | undefined, type: PaySettingType, def: string): PaySettingValue {
-  const v = raw ?? def;
-  if (type === "bool") return v === "true" || v === "1" || v === "on";
-  if (type === "int") return Number(v) || 0;
-  return v; // string | text | methods (comma-separated)
-}
+export type PaySettingValue = SettingValue;
+export type PaySettingsCatalog = SettingsCatalog;
 
 /** Read current Pay settings from the admin config store, grouped for the UI. */
 export async function paySettingsCatalog(): Promise<PaySettingsCatalog> {
-  const cfg = await resolveConfig("pay");
-  const out: PaySettingsCatalog = {};
-  for (const d of PAY_SETTINGS) {
-    (out[d.group] ??= []).push({
-      key: d.key, label: d.label, type: d.type,
-      value: cast(cfg[d.key], d.type, d.default),
-      default: cast(undefined, d.type, d.default),
-      help: d.help,
-    });
-  }
-  return out;
+  return buildSettingsCatalog("pay", PAY_SETTINGS);
 }
 
 export const PAY_SETTING_TYPES = Object.fromEntries(PAY_SETTINGS.map((d) => [d.key, d.type])) as Record<string, PaySettingType>;

@@ -1,26 +1,20 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { assertPermission } from "@/lib/auth";
-import { logAction } from "@/lib/audit";
-import { upsertCredential } from "@/lib/credentials";
-import { WALLET_SETTING_TYPES } from "@/lib/wallet-settings";
+import { WALLET_SECRET_KEYS, WALLET_SETTING_TYPES } from "@/lib/wallet-settings";
+import { saveCredentialSettings } from "@/lib/save-credential-settings";
 
 export async function saveWalletSettingsAction(values: Record<string, boolean | number | string>) {
   const admin = await assertPermission("platform.settings.manage");
-  try {
-    for (const [key, value] of Object.entries(values)) {
-      if (!(key in WALLET_SETTING_TYPES)) continue;
-      const stored = typeof value === "boolean" ? (value ? "true" : "false") : String(value);
-      await upsertCredential({
-        appId: "wallet", key, value: stored, scope: "all", secret: false,
-        description: "Wallet platform setting", updatedBy: admin.email,
-      });
-    }
-    await logAction(admin, "wallet.settings.updated", "wallet", { keys: Object.keys(values) });
-    revalidatePath("/services/wallet/settings");
-    return { ok: true as const };
-  } catch (e) {
-    return { ok: false as const, error: e instanceof Error ? e.message : "Failed to save settings" };
-  }
+  return saveCredentialSettings({
+    admin,
+    appId: "wallet",
+    settingTypes: WALLET_SETTING_TYPES,
+    secretKeys: WALLET_SECRET_KEYS,
+    values,
+    description: "Wallet platform setting",
+    action: "wallet.settings.updated",
+    target: "wallet",
+    path: "/services/wallet/settings",
+  });
 }

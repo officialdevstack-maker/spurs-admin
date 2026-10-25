@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import PageHeader from "@/components/page/PageHeader";
+import EmptyState from "@/components/page/EmptyState";
 import { requirePermission } from "@/lib/auth";
 import { giftcards } from "@/lib/sdk/giftcards";
 import { setRateAction, upsertBrandAction } from "../actions";
@@ -19,6 +21,7 @@ export default async function Rates() {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Gift card rates" description="Manage buying rates, bonus credit, and the brands available to customers." />
       <div className="text-muted-foreground flex items-start gap-2 text-sm">
         <Info className="mt-0.5 size-4 shrink-0" />
         <p>
@@ -28,6 +31,9 @@ export default async function Rates() {
         </p>
       </div>
 
+      {rows.length === 0 && (
+        <EmptyState title="No gift card brands configured" description="Add a brand and publish its first rate below." />
+      )}
       {rows.map((r) => {
         const perUnit = r.buyMinorPerUnit ? Number(r.buyMinorPerUnit) / 100 : "";
         return (

@@ -1,5 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import PageHeader from "@/components/page/PageHeader";
+import EmptyState from "@/components/page/EmptyState";
+import { Layers } from "lucide-react";
 import { requirePermission } from "@/lib/auth";
 import { listSubscriptions } from "@/lib/subscriptions";
 import { createSubscription } from "./actions";
@@ -12,6 +15,7 @@ export default async function AiTraderSubscriptionsPage() {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="AI Trader subscriptions" description="Manage access plans for AI Trader customers." />
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <div>
@@ -81,9 +85,12 @@ export default async function AiTraderSubscriptionsPage() {
           </form>
 
           {subs.length === 0 ? (
-            <p className="text-muted-foreground text-sm">
-              No AI Trader subscriptions yet. Create one above to make the user visible to the trader app.
-            </p>
+            <EmptyState
+              icon={Layers}
+              title="No AI Trader subscriptions yet"
+              description="Create a subscription above to make the user visible to the trader app."
+              compact
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">

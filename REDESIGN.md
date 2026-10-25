@@ -63,9 +63,11 @@ Mark items as they land.
 
 **Phase 3: Customer 360**
 - [x] Merge `app/(console)/users/[id]` and `services/accounts/users/[id]` into one page
+- [x] Merge Customers and Accounts account-holder directories; retain Accounts verification, roles, and trust details in the customer list
 - [x] Add `customerNotes` to `lib/db/schema.ts` and author a SQL migration
 - [x] Notes UI (add, pin) with audit entries
 - [x] Suspend / reinstate for customers (`customers.suspend`)
+- [x] Redirect the former Accounts account-holder list URL to the unified Customers directory
 - [ ] Apply the notes and Accounts suspension migrations after confirming the target databases
 
 **Phase 4: ⌘K palette**
@@ -75,12 +77,12 @@ Mark items as they land.
 **Phase 5: page-by-page restyle** (one per pass, in this order)
 - [x] Queues: cash-outs, task submissions, gift card trades, KYC, salary advances
 - [x] Shared loading skeleton and service-unavailable boundaries; queue empty states, summaries, mobile layout, and guarded money/standing confirmations
-- [ ] Money pages
-- [ ] Product pages
-- [ ] Settings last
+- [x] Money pages
+- [x] Product pages
+- [x] Settings last
 
 **Phase 6: settings unification**
-- [ ] One generic `SettingsForm` replacing `PaySettingsForm`, `WalletSettingsForm`, `SuiteSettingsForm` and accounts `SettingsForm` (they differ mainly in the catalogue type and the save action)
+- [x] One generic `SettingsForm` replaces the Pay, Wallet, Suite, and Accounts forms; services retain their own settings catalogue and save action.
 
 ## Rules for restyling a single page
 Before touching it, list: (a) what data it reads, (b) every action it can take, (c) the permission each one needs. After the change, all three must be identical unless the task says otherwise. Then:

@@ -1,4 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import PageHeader from "@/components/page/PageHeader";
+import Notice from "@/components/page/Notice";
 import { requirePermission } from "@/lib/auth";
 import { aitrader } from "@/lib/aitrader";
 import { savePlatformSettings } from "./actions";
@@ -15,6 +17,12 @@ export default async function AiTraderSettings() {
 
   return (
     <form action={savePlatformSettings} className="space-y-6">
+      <PageHeader title="AI Trader settings" description="Manage platform-wide trading venues, risk limits, and data access." />
+      {!p && (
+        <Notice tone="warning" title="AI Trader service is unavailable.">
+          Check that the trading service is running and its service URL and admin credentials are configured.
+        </Notice>
+      )}
       <div className="text-muted-foreground text-sm">
         Platform policy enforced on every user. Users bring their own broker
         credentials in the trader app — admin never stores them here.

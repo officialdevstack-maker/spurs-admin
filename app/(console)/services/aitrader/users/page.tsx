@@ -1,5 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import PageHeader from "@/components/page/PageHeader";
+import EmptyState from "@/components/page/EmptyState";
+import Notice from "@/components/page/Notice";
 import { requirePermission } from "@/lib/auth";
 import { aitrader } from "@/lib/aitrader";
 
@@ -9,10 +12,16 @@ const usd = (n: number) => "$" + n.toLocaleString(undefined, { maximumFractionDi
 
 export default async function AiTraderUsers() {
   await requirePermission("platform.ai.read");
-  const users = await aitrader.users();
+  const [users, platform] = await Promise.all([aitrader.users(), aitrader.platform()]);
 
   return (
     <div className="space-y-6">
+      <PageHeader title="AI Trader users" description={`${users.length} trader accounts configured on the platform.`} />
+      {!platform && (
+        <Notice tone="warning" title="AI Trader service is unavailable.">
+          Check that the trading service is running and its service URL and admin credentials are configured.
+        </Notice>
+      )}
       <Card>
         <CardHeader className="flex-row items-center justify-between">
           <CardTitle className="text-base">Trader users</CardTitle>
@@ -20,7 +29,13 @@ export default async function AiTraderUsers() {
         </CardHeader>
         <CardContent>
           {users.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No users yet. Users appear here once they configure the trader.</p>
+            <EmptyState
+              title={platform ? "No trader users yet" : "Trader users could not be loaded"}
+              description={platform
+                ? "Users appear here once they configure AI Trader."
+                : "Check the trading service connection, then try again."}
+              compact
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">

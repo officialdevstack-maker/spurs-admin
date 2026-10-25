@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import PageHeader from "@/components/page/PageHeader";
 import { requirePermission } from "@/lib/auth";
 import { overview } from "@/lib/arena";
 import { resolveDisputeAction, finalizeTournamentAction, refundOrderAction } from "./actions";
@@ -15,18 +16,22 @@ export default async function ArenaOverview() {
 
   if (!data) {
     return (
-      <Card className="border-amber-300/50">
-        <CardContent className="py-4 text-sm text-amber-700 dark:text-amber-400">
-          Arena service unreachable. Start it (<span className="font-mono">npm run dev</span> in <span className="font-mono">esport/</span>, :3600)
-          and confirm <span className="font-mono">ESPORT_INTERNAL_URL</span> + <span className="font-mono">INTERNAL_API_SECRET</span> under Settings.
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        <PageHeader title="Arena overview" description="Review Arena games, disputes, tournaments, and marketplace activity." />
+        <Card className="border-amber-300/50">
+          <CardContent className="py-4 text-sm text-amber-700 dark:text-amber-400">
+            Arena service unreachable. Start it (<span className="font-mono">npm run dev</span> in <span className="font-mono">esport/</span>, :3600)
+            and confirm <span className="font-mono">ESPORT_INTERNAL_URL</span> + <span className="font-mono">INTERNAL_API_SECRET</span> under Settings.
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   const c = data.counts;
   return (
     <div className="space-y-6">
+      <PageHeader title="Arena overview" description="Review Arena games, disputes, tournaments, and marketplace activity." />
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <Tile label="Games" value={c.games} />
         <Tile label="Disputes" value={c.disputes} tone={c.disputes ? "bad" : undefined} />

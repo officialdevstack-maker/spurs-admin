@@ -1,6 +1,7 @@
 import { Building2, FileText, ArrowDownToLine, ClipboardList } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { suiteStats, recentBusinesses } from "@/lib/suite-data";
+import PageHeader from "@/components/page/PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,7 @@ export default async function SuiteOverview() {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Suite overview" description="Business activity, collected revenue, invoices, and payroll runs." />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {tiles.map((t) => (
           <Card key={t.label}>

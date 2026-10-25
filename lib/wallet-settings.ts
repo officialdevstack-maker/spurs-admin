@@ -1,21 +1,12 @@
 import "server-only";
-import { resolveConfig } from "@/lib/credentials";
+import { buildSettingsCatalog, type SettingDefinition, type SettingType, type SettingValue, type SettingsCatalog } from "@/lib/settings-catalog";
 
 /**
  * Wallet's platform settings. Stored in the admin config registry for app
  * "wallet" and served over the config API — they take effect once Wallet reads
  * its config from admin.
  */
-export type WalletSettingType = "bool" | "int" | "string" | "text" | "assets";
-
-interface Def {
-  key: string;
-  group: string;
-  label: string;
-  type: WalletSettingType;
-  default: string;
-  help: string;
-}
+export type WalletSettingType = Extract<SettingType, "bool" | "int" | "string" | "text" | "assets">;
 
 export const WALLET_ASSET_OPTIONS = [
   { value: "NGN", label: "Naira (NGN)" },
@@ -24,7 +15,7 @@ export const WALLET_ASSET_OPTIONS = [
   { value: "BTC", label: "Bitcoin (BTC)" },
 ];
 
-export const WALLET_SETTINGS: Def[] = [
+export const WALLET_SETTINGS: SettingDefinition<WalletSettingType>[] = [
   { key: "WALLET_ENABLED_ASSETS", group: "Assets", label: "Enabled assets", type: "assets", default: "NGN,USD,USDT,BTC", help: "Currencies users can hold in their wallet." },
   { key: "WALLET_BASE_CURRENCY", group: "Assets", label: "Base currency", type: "string", default: "NGN", help: "Currency used for reporting and balances." },
 
@@ -47,47 +38,27 @@ export const WALLET_SETTINGS: Def[] = [
 
   // Crypto custody provider — all credentials live here, served to Wallet from admin.
   { key: "CRYPTO_PROVIDER", group: "Crypto custody", label: "Custody provider", type: "string", default: "sandbox", help: "sandbox | tatum (hosted) | selfhosted (your keys + your node)." },
-  { key: "SELF_MNEMONIC", group: "Crypto custody", label: "Self-host seed (BIP-39)", type: "text", default: "", help: "Self-hosted only: mnemonic that derives all deposit + hot wallets. Keep secret." },
-  { key: "SELF_RPC_ETHEREUM", group: "Crypto custody", label: "Self-host ETH RPC URL", type: "string", default: "", help: "Self-hosted only: your own Ethereum node's JSON-RPC endpoint." },
+  { key: "SELF_MNEMONIC", group: "Crypto custody", label: "Self-host seed (BIP-39)", type: "text", default: "", help: "Self-hosted only: mnemonic that derives all deposit + hot wallets. Keep secret.", secret: true },
+  { key: "SELF_RPC_ETHEREUM", group: "Crypto custody", label: "Self-host ETH RPC URL", type: "string", default: "", help: "Self-hosted only: your own Ethereum node's JSON-RPC endpoint.", secret: true },
   { key: "SELF_HOT_PATH", group: "Crypto custody", label: "Self-host hot wallet path", type: "string", default: "m/44'/60'/0'/0/0", help: "HD path of the pooled hot wallet that signs withdrawals." },
   { key: "SELF_USDT_CONTRACT_ETHEREUM", group: "Crypto custody", label: "USDT contract (ETH)", type: "string", default: "", help: "Override the USDT contract (e.g. a testnet token). Blank = mainnet." },
   { key: "SELF_CONFIRMATIONS", group: "Crypto custody", label: "Required confirmations", type: "int", default: "12", help: "Confirmations before a deposit credits the ledger." },
   { key: "SELF_SWEEP", group: "Crypto custody", label: "Auto-sweep to hot wallet", type: "bool", default: "false", help: "Move confirmed deposits into the pooled hot wallet (validate on testnet first)." },
-  { key: "TATUM_API_KEY", group: "Crypto custody", label: "Tatum API key", type: "string", default: "", help: "Tatum.io API key for hosted custody." },
+  { key: "TATUM_API_KEY", group: "Crypto custody", label: "Tatum API key", type: "string", default: "", help: "Tatum.io API key for hosted custody.", secret: true },
   { key: "TATUM_XPUB_BITCOIN", group: "Crypto custody", label: "BTC xpub", type: "string", default: "", help: "Extended public key deposits are derived from." },
   { key: "TATUM_XPUB_ETHEREUM", group: "Crypto custody", label: "ETH xpub", type: "string", default: "", help: "Used for ETH and ERC-20 (USDT) deposit addresses." },
   { key: "TATUM_XPUB_TRON", group: "Crypto custody", label: "TRON xpub", type: "string", default: "", help: "Used for TRC-20 (USDT) deposit addresses." },
   { key: "TATUM_SIGNATURE_ID", group: "Crypto custody", label: "KMS signature id", type: "string", default: "", help: "Tatum KMS signature id used to sign withdrawals." },
   { key: "SPURS_CRYPTO_WEBHOOK_URL", group: "Crypto custody", label: "Deposit webhook URL", type: "string", default: "", help: "Public URL the provider calls on inbound deposits." },
-  { key: "SPURS_CRYPTO_WEBHOOK_TOKEN", group: "Crypto custody", label: "Webhook token", type: "string", default: "", help: "Secret token appended to the webhook URL." },
+  { key: "SPURS_CRYPTO_WEBHOOK_TOKEN", group: "Crypto custody", label: "Webhook token", type: "string", default: "", help: "Secret token appended to the webhook URL.", secret: true },
 ];
 
-export type WalletSettingValue = boolean | number | string;
-export interface WalletSettingItem {
-  key: string; label: string; type: WalletSettingType;
-  value: WalletSettingValue; default: WalletSettingValue; help: string;
-}
-export type WalletSettingsCatalog = Record<string, WalletSettingItem[]>;
-
-function cast(raw: string | undefined, type: WalletSettingType, def: string): WalletSettingValue {
-  const v = raw ?? def;
-  if (type === "bool") return v === "true" || v === "1" || v === "on";
-  if (type === "int") return Number(v) || 0;
-  return v; // string | text | assets (comma-separated)
-}
+export type WalletSettingValue = SettingValue;
+export type WalletSettingsCatalog = SettingsCatalog;
+export const WALLET_SECRET_KEYS = new Set(WALLET_SETTINGS.filter((setting) => setting.secret).map((setting) => setting.key));
 
 export async function walletSettingsCatalog(): Promise<WalletSettingsCatalog> {
-  const cfg = await resolveConfig("wallet");
-  const out: WalletSettingsCatalog = {};
-  for (const d of WALLET_SETTINGS) {
-    (out[d.group] ??= []).push({
-      key: d.key, label: d.label, type: d.type,
-      value: cast(cfg[d.key], d.type, d.default),
-      default: cast(undefined, d.type, d.default),
-      help: d.help,
-    });
-  }
-  return out;
+  return buildSettingsCatalog("wallet", WALLET_SETTINGS);
 }
 
 export const WALLET_SETTING_TYPES = Object.fromEntries(WALLET_SETTINGS.map((d) => [d.key, d.type])) as Record<string, WalletSettingType>;

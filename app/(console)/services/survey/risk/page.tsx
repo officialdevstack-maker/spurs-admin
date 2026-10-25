@@ -1,6 +1,7 @@
 import { ShieldAlert, Timer, Ban } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import PageHeader from "@/components/page/PageHeader";
 import Pagination from "@/components/Pagination";
 import { requirePermission } from "@/lib/auth";
 import { survey } from "@/lib/sdk/survey";
@@ -38,6 +39,7 @@ export default async function Risk({ searchParams }: { searchParams: Promise<{ p
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Earn risk" description="Review flagged submissions and the automated enforcement history." />
       <div className="grid gap-4 sm:grid-cols-3">
         <Card>
           <CardContent className="pt-6">

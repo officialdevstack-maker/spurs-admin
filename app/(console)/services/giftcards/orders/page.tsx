@@ -1,6 +1,7 @@
 import { Receipt } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import PageHeader from "@/components/page/PageHeader";
 import Pagination from "@/components/Pagination";
 import { requirePermission } from "@/lib/auth";
 import { giftcards, naira } from "@/lib/sdk/giftcards";
@@ -27,6 +28,7 @@ export default async function Orders({ searchParams }: { searchParams: Promise<{
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Gift card orders" description={`${orders.length} card purchases and ${trades.length} user trades.`} />
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">

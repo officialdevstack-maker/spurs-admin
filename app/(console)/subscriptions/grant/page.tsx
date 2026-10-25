@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import PageHeader from "@/components/page/PageHeader";
 import { requirePermission } from "@/lib/auth";
 import { listPlans } from "@/lib/plans";
 import { db, apps as appsTable } from "@/lib/db";
@@ -18,7 +19,9 @@ export default async function GrantPage({ searchParams }: { searchParams: Promis
   ]);
 
   return (
-    <form action={grantSubscriptionAction} className="max-w-2xl space-y-6">
+    <div className="space-y-6">
+      <PageHeader title="Grant a subscription" description="Manually grant or deactivate a customer's subscription without charging them." back={{ href: "/subscriptions/subscribers", label: "Subscribers" }} />
+      <form action={grantSubscriptionAction} className="max-w-2xl space-y-6">
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">{error}</div>
       )}
@@ -55,7 +58,8 @@ export default async function GrantPage({ searchParams }: { searchParams: Promis
         <button type="submit" className="bg-primary text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium hover:opacity-90">Grant subscription</button>
         <p className="text-muted-foreground text-xs">Manual grant — no charge. Trade allowance comes from the plan.</p>
       </div>
-    </form>
+      </form>
+    </div>
   );
 }
 

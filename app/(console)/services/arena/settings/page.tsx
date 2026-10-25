@@ -1,4 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import PageHeader from "@/components/page/PageHeader";
 import { requirePermission } from "@/lib/auth";
 import { resolveConfig } from "@/lib/credentials";
 import { saveArenaSettings } from "../actions";
@@ -9,15 +10,16 @@ const inp = "h-10 w-full rounded-lg border bg-transparent px-3 text-sm outline-n
 
 export default async function ArenaSettings() {
   await requirePermission("platform.credentials.manage");
-  const cfg = await resolveConfig("esport").catch(() => ({}) as Record<string, string>);
+  const cfg = await resolveConfig("esport");
   const set = (k: string) => Boolean(cfg[k]);
 
   return (
-    <form action={saveArenaSettings} className="space-y-6">
-      <div className="text-muted-foreground text-sm">
-        Game-provider API keys and the arena&apos;s internal URL. The Arena app reads these from here (never from its own env).
-        Keys are stored encrypted; leave a key blank to keep the current value.
-      </div>
+    <div className="space-y-6">
+      <PageHeader title="Arena settings" description="Manage game-provider credentials and Arena's internal service connection." />
+      <form action={saveArenaSettings} className="space-y-6">
+      <p className="text-muted-foreground text-sm">
+        The Arena app reads these values from the admin config registry. Keys are stored encrypted; leave a key blank to keep the current value.
+      </p>
 
       <Card>
         <CardHeader><CardTitle className="text-base">Stats providers</CardTitle></CardHeader>
@@ -49,7 +51,8 @@ export default async function ArenaSettings() {
       <button type="submit" className="bg-primary text-primary-foreground rounded-lg px-4 py-2 text-sm font-medium hover:opacity-90">
         Save Arena settings
       </button>
-    </form>
+      </form>
+    </div>
   );
 }
 

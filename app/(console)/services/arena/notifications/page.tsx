@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import PageHeader from "@/components/page/PageHeader";
+import Notice from "@/components/page/Notice";
 import { requirePermission } from "@/lib/auth";
 import { overview } from "@/lib/arena";
 import { sendNotificationAction } from "../actions";
@@ -15,6 +17,12 @@ export default async function ArenaNotifications() {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Arena notifications" description="Send in-app announcements to all Arena users or a single customer." />
+      {!data && (
+        <Notice tone="warning" title="Arena service is unavailable.">
+          Check that the Arena service is running and its internal URL and secret are configured.
+        </Notice>
+      )}
       <Card>
         <CardHeader><CardTitle className="text-base">Send an in-app notification</CardTitle></CardHeader>
         <CardContent>
@@ -53,11 +61,6 @@ export default async function ArenaNotifications() {
               </button>
             </div>
           </form>
-          {!data && (
-            <p className="mt-3 text-sm text-amber-600 dark:text-amber-400">
-              Arena service unreachable — sending will fail until it&apos;s running. Check the Settings tab.
-            </p>
-          )}
         </CardContent>
       </Card>
 

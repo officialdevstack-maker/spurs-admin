@@ -1,4 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import PageHeader from "@/components/page/PageHeader";
+import Notice from "@/components/page/Notice";
 import { Trash2, Plus } from "lucide-react";
 import { can, requirePermission } from "@/lib/auth";
 import { overview } from "@/lib/arena";
@@ -20,19 +22,15 @@ export default async function ArenaLevels() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-base font-semibold">Level ladder &amp; rewards</h2>
-        <p className="text-muted-foreground mt-1 text-sm">
-          Define the XP needed to reach each level, its title, and the wallet reward players
-          claim on reaching it. Changes apply live — the arena reads this ladder directly. If
-          it&apos;s empty, the arena falls back to a built-in default curve.
-        </p>
-      </div>
+      <PageHeader
+        title="Arena levels"
+        description="Define XP thresholds and wallet rewards for each level. Changes apply live; an empty ladder uses Arena's default curve."
+      />
 
       {!data && (
-        <p className="text-sm text-amber-600 dark:text-amber-400">
-          Arena service unreachable — editing will fail until it&apos;s running. Check the Settings tab.
-        </p>
+        <Notice tone="warning" title="Arena service is unavailable.">
+          Check that the Arena service is running and its internal URL and secret are configured.
+        </Notice>
       )}
 
       {/* Add / edit a level */}

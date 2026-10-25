@@ -1,26 +1,19 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { assertPermission } from "@/lib/auth";
-import { logAction } from "@/lib/audit";
-import { upsertCredential } from "@/lib/credentials";
 import { PAY_SETTING_TYPES } from "@/lib/pay-settings";
+import { saveCredentialSettings } from "@/lib/save-credential-settings";
 
 export async function savePaySettingsAction(values: Record<string, boolean | number | string>) {
   const admin = await assertPermission("platform.settings.manage");
-  try {
-    for (const [key, value] of Object.entries(values)) {
-      if (!(key in PAY_SETTING_TYPES)) continue;
-      const stored = typeof value === "boolean" ? (value ? "true" : "false") : String(value);
-      await upsertCredential({
-        appId: "pay", key, value: stored, scope: "all", secret: false,
-        description: "Pay platform setting", updatedBy: admin.email,
-      });
-    }
-    await logAction(admin, "pay.settings.updated", "pay", { keys: Object.keys(values) });
-    revalidatePath("/services/pay/settings");
-    return { ok: true as const };
-  } catch (e) {
-    return { ok: false as const, error: e instanceof Error ? e.message : "Failed to save settings" };
-  }
+  return saveCredentialSettings({
+    admin,
+    appId: "pay",
+    settingTypes: PAY_SETTING_TYPES,
+    values,
+    description: "Pay platform setting",
+    action: "pay.settings.updated",
+    target: "pay",
+    path: "/services/pay/settings",
+  });
 }

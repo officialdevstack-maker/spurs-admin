@@ -9,6 +9,7 @@ import { can } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { survey } from "@/lib/sdk/survey";
 import { saveNetworkAction, saveEconomicsAction } from "./actions";
+import PageHeader from "@/components/page/PageHeader";
 
 export const dynamic = "force-dynamic";
 
@@ -53,6 +54,7 @@ export default async function Networks() {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Earn networks" description="Manage survey providers, integration credentials, and revenue economics." />
       {canManageSettings && <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">

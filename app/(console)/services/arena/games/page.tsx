@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import PageHeader from "@/components/page/PageHeader";
+import Notice from "@/components/page/Notice";
 import { requirePermission } from "@/lib/auth";
 import { overview } from "@/lib/arena";
 import { upsertGameAction, seedGamesAction } from "../actions";
@@ -15,6 +17,12 @@ export default async function ArenaGames() {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Arena games" description="Manage the games, modes, and account-linking options available in Arena." />
+      {!data && (
+        <Notice tone="warning" title="Arena service is unavailable.">
+          Check that the Arena service is running and its internal URL and secret are configured.
+        </Notice>
+      )}
       <Card>
         <CardHeader className="flex-row items-center justify-between pb-3">
           <CardTitle className="text-base">Game catalogue</CardTitle>

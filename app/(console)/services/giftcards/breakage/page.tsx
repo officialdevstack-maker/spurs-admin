@@ -1,6 +1,7 @@
 import { PieChart, Wallet, TrendingDown, Info } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import BarChart from "@/components/charts/BarChart";
+import PageHeader from "@/components/page/PageHeader";
 import { requirePermission } from "@/lib/auth";
 import { giftcards, naira } from "@/lib/sdk/giftcards";
 
@@ -40,6 +41,7 @@ export default async function Breakage() {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Gift card breakage" description="Track outstanding customer credit as a liability and see where it is spent." />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {tiles.map((t) => (
           <Card key={t.label}>

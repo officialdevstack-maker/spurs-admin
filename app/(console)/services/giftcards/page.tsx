@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import LineChart from "@/components/charts/LineChart";
 import BarChart from "@/components/charts/BarChart";
+import PageHeader from "@/components/page/PageHeader";
 import { requirePermission } from "@/lib/auth";
 import { giftcards, naira } from "@/lib/sdk/giftcards";
 
@@ -39,6 +40,7 @@ export default async function GiftcardsOverview() {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Gift cards overview" description="Card liabilities, trade activity, and customer credit across gift cards." />
       {/* Liability first — this is the number that matters to finance. */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {tiles.map((t) => (
