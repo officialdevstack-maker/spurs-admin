@@ -1,17 +1,21 @@
 import { listTransactions } from "@/lib/data";
 import { requirePermission } from "@/lib/auth";
+import PageHeader from "@/components/page/PageHeader";
+import EmptyState from "@/components/page/EmptyState";
+import { ArrowLeftRight } from "lucide-react";
 import TransactionsTable from "./TransactionsTable";
+
+export const dynamic = "force-dynamic";
 
 export default async function TransactionsPage() {
   await requirePermission("money.read");
   const txns = await listTransactions(500);
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Wallet transactions</h1>
-        <p className="text-muted-foreground text-sm">Every credit and debit across all wallets. {txns.length} total.</p>
-      </div>
-      <TransactionsTable data={txns} />
+      <PageHeader title="Wallet transactions" description={`Every credit and debit across all wallets. ${txns.length} total.`} />
+      {txns.length
+        ? <TransactionsTable data={txns} />
+        : <EmptyState icon={ArrowLeftRight} title="No wallet transactions yet" description="Credits and debits will appear here as wallet activity occurs." />}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Fingerprint, CreditCard, Landmark, Send, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ServiceFlow, { type FlowEdge } from "@/components/ServiceFlow";
+import PageHeader from "@/components/page/PageHeader";
 import { requirePermission } from "@/lib/auth";
 import { walletStats, connections } from "@/lib/wallet-data";
 
@@ -45,6 +46,7 @@ export default async function WalletConnectionsPage() {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Wallet connections" description="Follow how funds enter, move through, and leave the Spurs wallet." />
       <p className="text-muted-foreground text-sm">
         Spurs services are one system. Money enters a wallet from <span className="text-foreground font-medium">Pay</span> and <span className="text-foreground font-medium">bank transfers</span>, is held against an <span className="text-foreground font-medium">Accounts</span> identity, and leaves as payments or payouts. Here's how it connects across the platform.
       </p>

@@ -8,6 +8,7 @@ import StatCard from "@/components/page/StatCard";
 import StatGrid from "@/components/page/StatGrid";
 import SectionCard from "@/components/page/SectionCard";
 import EmptyState from "@/components/page/EmptyState";
+import PageHeader from "@/components/page/PageHeader";
 import { formatNaira } from "@/lib/format";
 import { dailyPoints } from "@/lib/series";
 import { listPayments } from "@/lib/data";
@@ -53,6 +54,7 @@ export default async function PayOverview() {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Pay overview" description="Payment volume, payouts, merchants, and recent activity across Spurs Pay." />
       <StatGrid cols={4}>
         <StatCard label="Collected" icon={TrendingUp} value={formatNaira(stats.collected)} hint={`${stats.live.count} live · ${stats.test.count} test`} />
         <StatCard label="Merchants" icon={Store} value={stats.merchants} hint={`${stats.virtualAccounts} virtual accounts`} />

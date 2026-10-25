@@ -5,6 +5,7 @@ import LineChart, { type Point } from "@/components/charts/LineChart";
 import BarChart from "@/components/charts/BarChart";
 import DonutChart from "@/components/charts/DonutChart";
 import ServiceFlow, { type FlowEdge } from "@/components/ServiceFlow";
+import PageHeader from "@/components/page/PageHeader";
 import { requirePermission } from "@/lib/auth";
 import { walletStats, txnSeries, sourceBreakdown, balanceByAsset, connections } from "@/lib/wallet-data";
 
@@ -58,6 +59,7 @@ export default async function WalletOverview() {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Wallet overview" description="Balances, ledger activity, and how money flows through customer wallets." />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {tiles.map((t) => (
           <Card key={t.label}>

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import LineChart from "@/components/charts/LineChart";
 import BarChart from "@/components/charts/BarChart";
+import PageHeader from "@/components/page/PageHeader";
 import { requirePermission } from "@/lib/auth";
 import { survey } from "@/lib/sdk/survey";
 
@@ -39,6 +40,7 @@ export default async function SurveyOverview() {
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Earn overview" description="Earner activity, task submissions, cash-outs, and network performance." />
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {tiles.map((t) => (
           <Card key={t.label}>

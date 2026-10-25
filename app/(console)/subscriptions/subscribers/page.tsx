@@ -1,6 +1,8 @@
 import { Sparkles, Users, BadgeCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import PageHeader from "@/components/page/PageHeader";
+import EmptyState from "@/components/page/EmptyState";
 import { requirePermission } from "@/lib/auth";
 import { listSubscriptions } from "@/lib/subscriptions";
 import { listPlans } from "@/lib/plans";
@@ -19,6 +21,7 @@ export default async function SubscribersPage({ searchParams }: { searchParams: 
 
   return (
     <div className="space-y-6">
+      <PageHeader title="Subscribers" description={`${active.length} active subscriptions across ${plans.length} plans.`} />
       {granted && (
         <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-300">
           Subscription granted.
@@ -34,7 +37,12 @@ export default async function SubscribersPage({ searchParams }: { searchParams: 
         <CardHeader className="pb-3"><CardTitle className="text-base">Subscribers</CardTitle></CardHeader>
         <CardContent>
           {subs.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No subscriptions yet.</p>
+            <EmptyState
+              icon={Users}
+              title="No subscriptions yet"
+              description="Granted and active subscriptions will appear here."
+              compact
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">

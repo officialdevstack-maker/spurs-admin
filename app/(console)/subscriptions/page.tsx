@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import PageHeader from "@/components/page/PageHeader";
+import EmptyState from "@/components/page/EmptyState";
 import { requirePermission } from "@/lib/auth";
 import { listPlans } from "@/lib/plans";
 import { deletePlanAction } from "./actions";
@@ -16,19 +18,28 @@ export default async function PlansPage({ searchParams }: { searchParams: Promis
 
   return (
     <div className="space-y-6">
+      <PageHeader
+        title="Subscription plans"
+        description="Manage the plans offered across Spurs services."
+        actions={
+          <Link href="/subscriptions/new" className="bg-primary text-primary-foreground inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium hover:opacity-90">
+            <Plus className="size-4" /> New plan
+          </Link>
+        }
+      />
       {saved && <Banner tone="ok">Plan saved.</Banner>}
       {deleted && <Banner tone="ok">Plan deleted.</Banner>}
 
       <Card>
-        <CardHeader className="flex-row items-center justify-between">
-          <CardTitle className="text-base">Subscription plans</CardTitle>
-          <Link href="/subscriptions/new" className="bg-primary text-primary-foreground inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium hover:opacity-90">
-            <Plus className="size-4" /> New plan
-          </Link>
-        </CardHeader>
+        <CardHeader className="pb-3"><CardTitle className="text-base">Plans</CardTitle></CardHeader>
         <CardContent>
           {plans.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No plans yet. Create one — it appears in the app's subscription page automatically.</p>
+            <EmptyState
+              icon={Plus}
+              title="No subscription plans yet"
+              description="Create a plan to make it available on the app's subscription page."
+              compact
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
