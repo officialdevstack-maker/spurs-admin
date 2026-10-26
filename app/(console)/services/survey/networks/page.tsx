@@ -87,7 +87,7 @@ export default async function Networks() {
             <div className="space-y-1.5">
               <Label htmlFor="holdHours">Default payout hold (hours)</Label>
               <Input id="holdHours" name="holdHours" defaultValue={holdHours} inputMode="numeric" />
-              <p className="text-muted-foreground text-xs">Level 4 and 5 wait less — that's a level perk.</p>
+              <p className="text-muted-foreground text-xs">Level 4 and 5 wait less — that&apos;s a level perk.</p>
             </div>
             <div className="sm:col-span-2 lg:col-span-4">
               <Button type="submit">Save economics</Button>

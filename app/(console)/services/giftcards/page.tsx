@@ -147,7 +147,7 @@ export default async function GiftcardsOverview() {
           <div>
             <CardTitle className="text-base">Where credit gets spent</CardTitle>
             <p className="text-muted-foreground mt-1 text-sm">
-              Last 90 days, by app. Credit that's never spent stays on our books as a liability.
+              Last 90 days, by app. Credit that&apos;s never spent stays on our books as a liability.
             </p>
           </div>
           <Link href="/services/giftcards/breakage">

@@ -75,7 +75,7 @@ export default async function Risk({ searchParams }: { searchParams: Promise<{ p
       {top.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">What's tripping the checks</CardTitle>
+            <CardTitle className="text-base">What&apos;s tripping the checks</CardTitle>
             <p className="text-muted-foreground mt-1 text-sm">
               Signals are weak on their own — a submission is only actioned on the combined score.
             </p>

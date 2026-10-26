@@ -92,7 +92,7 @@ export default async function UserDetailPage({ params }: { params: Promise<{ id:
   return (
     <div className="space-y-6">
       <Link href="/users" className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1.5 text-sm">
-        <ArrowLeft className="size-4" /> Back to users
+        <ArrowLeft className="size-4" /> Back to customers
       </Link>
 
       {/* Identity header */}

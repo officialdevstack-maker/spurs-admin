@@ -60,8 +60,8 @@ export default async function Breakage() {
       <div className="text-muted-foreground flex items-start gap-2 text-sm">
         <Info className="mt-0.5 size-4 shrink-0" />
         <p>
-          Outstanding credit is a real liability, not revenue — it's value we owe in goods. Treat the
-          unspent balance as money still owed until it's either spent or written off under whatever
+          Outstanding credit is a real liability, not revenue — it&apos;s value we owe in goods. Treat the
+          unspent balance as money still owed until it&apos;s either spent or written off under whatever
           policy finance sets. Nothing here writes any of it off automatically.
         </p>
       </div>

@@ -103,7 +103,7 @@ export default async function Rates() {
           </CardTitle>
           <p className="text-muted-foreground mt-1 text-sm">
             A brand only appears to users once it has a live rate. Leave auto-verify off unless a real
-            balance check is wired up for it — it's the only thing that lets a trade skip review.
+            balance check is wired up for it — it&apos;s the only thing that lets a trade skip review.
           </p>
         </CardHeader>
         <CardContent>

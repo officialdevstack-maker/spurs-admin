@@ -48,7 +48,7 @@ export default async function WalletConnectionsPage() {
     <div className="space-y-6">
       <PageHeader title="Wallet connections" description="Follow how funds enter, move through, and leave the Spurs wallet." />
       <p className="text-muted-foreground text-sm">
-        Spurs services are one system. Money enters a wallet from <span className="text-foreground font-medium">Pay</span> and <span className="text-foreground font-medium">bank transfers</span>, is held against an <span className="text-foreground font-medium">Accounts</span> identity, and leaves as payments or payouts. Here's how it connects across the platform.
+        Spurs services are one system. Money enters a wallet from <span className="text-foreground font-medium">Pay</span> and <span className="text-foreground font-medium">bank transfers</span>, is held against an <span className="text-foreground font-medium">Accounts</span> identity, and leaves as payments or payouts. Here&apos;s how it connects across the platform.
       </p>
 
       <Card>

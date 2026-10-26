@@ -68,7 +68,7 @@ Mark items as they land.
 - [x] Notes UI (add, pin) with audit entries
 - [x] Suspend / reinstate for customers (`customers.suspend`)
 - [x] Redirect the former Accounts account-holder list URL to the unified Customers directory
-- [ ] Apply the notes and Accounts suspension migrations after confirming the target databases
+- [x] Apply the notes and Accounts suspension migrations to the confirmed Admin and Accounts databases
 
 **Phase 4: ⌘K palette**
 - [x] `components/shell/CommandPalette.tsx` (client) + a server action that searches users, payments and merchants
